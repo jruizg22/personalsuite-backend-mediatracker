@@ -4,7 +4,7 @@ from typing import List
 
 from sqlmodel import SQLModel, Field, Relationship
 
-from modules.media_tracker.constants import TITLE_MAX_LENGTH, LANGUAGE_CODE_MAX_LENGTH
+from ..constants import TITLE_MAX_LENGTH, LANGUAGE_CODE_MAX_LENGTH
 
 
 class MediaType(str, Enum):
