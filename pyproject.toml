@@ -1,0 +1,11 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "media-tracker"
+version = "0.1.0"
+dependencies = ["fastapi", "sqlmodel"]
+
+[project.entry-points."personal_suite.modules"]
+media_tracker = "media_tracker.module:Module"
