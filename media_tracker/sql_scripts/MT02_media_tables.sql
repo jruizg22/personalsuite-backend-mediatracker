@@ -14,6 +14,13 @@ CREATE TABLE media (
     type media_type NOT NULL, -- Type of media
     original_title titleLength NOT NULL, -- Original title of the media
     release_date DATE -- Release date of the media
+
+    /*
+    According to TMDB, their ids are only unique within each namespace.
+    Which means, there can not be two movies with the same id,
+    but there can be a movie and a TV show with the same id.
+    */
+    CONSTRAINT unique_media_tmdb_type UNIQUE (tmdb_id, type)
 );
 
 /*

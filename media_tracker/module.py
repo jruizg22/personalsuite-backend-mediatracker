@@ -60,16 +60,22 @@ class Module:
 
         It should be called after the module is initialized.
         """
-        from .api.v1 import yt_channel_endpoints
+        from .api.v1 import yt_channel_controller, media_controller
 
         # Create the main router for this module
         module_router: APIRouter = APIRouter(prefix="/media_tracker", tags=["media_tracker"])
 
         # Include the endpoints as sub-routers
         module_router.include_router(
-            yt_channel_endpoints.get_router(self.get_session()),
+            media_controller.get_router(self.get_session()),
+            prefix="/media",
+            tags=["Media"]
+        )
+
+        module_router.include_router(
+            yt_channel_controller.get_router(self.get_session()),
             prefix="/yt_channels",
-            tags=["yt_channels"]
+            tags=["YouTube Channels"]
         )
 
         # Attach the module router to the main FastAPI app

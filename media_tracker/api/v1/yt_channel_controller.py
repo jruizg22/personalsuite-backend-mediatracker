@@ -1,3 +1,5 @@
+from typing import Callable, Generator, Any
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session
 
@@ -5,8 +7,8 @@ from media_tracker.models.yt import YTChannelPublic
 from media_tracker.services import yt_channel_service
 
 
-def get_router(get_session) -> APIRouter:
-    router = APIRouter()
+def get_router(get_session: Callable[[], Generator[Session, Any, None]]) -> APIRouter:
+    router: APIRouter = APIRouter()
 
     @router.get("/", response_model=list[YTChannelPublic])
     def get_all(session: Session = Depends(get_session)) -> list[YTChannelPublic]:
