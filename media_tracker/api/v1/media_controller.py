@@ -8,7 +8,10 @@ from media_tracker.services import media_service
 
 
 def get_router(get_session: Callable[[], Generator[Session, Any, None]]) -> APIRouter:
-    router: APIRouter = APIRouter()
+    router: APIRouter = APIRouter(
+        prefix="/media",
+        tags=["Media"]
+    )
 
     @router.get("/", response_model=MediaResponse, status_code=200)
     def get_all_media(
