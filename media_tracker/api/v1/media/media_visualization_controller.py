@@ -14,7 +14,7 @@ from media_tracker.services import media_visualization_service
 def get_router(get_session: Callable[[], Generator[Session, Any, None]]) -> APIRouter:
 
     router: APIRouter = APIRouter(
-        prefix="/media/visualizations",
+        prefix="/visualizations",
         tags=["Media Visualizations"]
     )
 

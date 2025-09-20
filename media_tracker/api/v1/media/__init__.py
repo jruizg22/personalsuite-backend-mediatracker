@@ -1,0 +1,26 @@
+from typing import Callable, Generator, Any
+
+from fastapi import APIRouter
+from sqlmodel import Session
+
+from .media_controller import get_router as media_router
+from .media_translation_controller import get_router as media_translation_router
+from .media_visualization_controller import get_router as media_visualization_router
+from .tv_show_episode_controller import get_router as tv_episode_router
+from .tv_show_episode_translation_controller import get_router as tv_episode_translation_router
+from .tv_show_episode_visualization_controller import get_router as tv_episode_visualization_router
+
+
+def get_router(get_session: Callable[[], Generator[Session, Any, None]]) -> APIRouter:
+    router: APIRouter = APIRouter(
+        prefix="/media",
+    )
+
+    router.include_router(media_router(get_session))
+    router.include_router(media_translation_router(get_session))
+    router.include_router(media_visualization_router(get_session))
+    router.include_router(tv_episode_router(get_session))
+    router.include_router(tv_episode_translation_router(get_session))
+    router.include_router(tv_episode_visualization_router(get_session))
+
+    return router

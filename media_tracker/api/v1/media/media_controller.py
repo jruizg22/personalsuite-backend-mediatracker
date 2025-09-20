@@ -13,7 +13,6 @@ from media_tracker.services import media_service
 
 def get_router(get_session: Callable[[], Generator[Session, Any, None]]) -> APIRouter:
     router: APIRouter = APIRouter(
-        prefix="/media",
         tags=["Media"]
     )
 

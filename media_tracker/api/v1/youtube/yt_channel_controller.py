@@ -8,7 +8,10 @@ from media_tracker.services import yt_channel_service
 
 
 def get_router(get_session: Callable[[], Generator[Session, Any, None]]) -> APIRouter:
-    router: APIRouter = APIRouter()
+    router: APIRouter = APIRouter(
+        prefix="/channels",
+        tags=["YouTube Channels"]
+    )
 
     @router.get("/", response_model=list[YTChannelPublic])
     def get_all(session: Session = Depends(get_session)) -> list[YTChannelPublic]:
