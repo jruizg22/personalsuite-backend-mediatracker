@@ -223,9 +223,9 @@ def delete(session: Session, media_translation_id: int, language_code: str) -> N
     try:
         # Retrieve the record to update from the database
         # If it does not exist, it will throw an error
-        media_translation: MediaTranslation = session.get(MediaTranslation, media_translation_id) # type: ignore[arg-type]
+        media_translation: MediaTranslation = session.get(MediaTranslation, (media_translation_id, language_code)) # type: ignore[arg-type]
         if not media_translation:
-            raise ResourceNotFoundError(f"MediaTranslation with ID {media_translation_id} not found")
+            raise ResourceNotFoundError(f"MediaTranslation with ID {media_translation_id} and language code {language_code} not found")
 
         # Delete the record
         session.delete(media_translation)
