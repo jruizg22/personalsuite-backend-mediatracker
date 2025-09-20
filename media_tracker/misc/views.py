@@ -34,3 +34,7 @@ class TVShowEpisodeView(str, Enum):
 class TVShowEpisodeTranslationView(str, Enum):
     BASIC = 'basic'
     WITH_EPISODE = 'with_episode'
+
+class TVShowEpisodeVisualizationView(str, Enum):
+    BASIC = 'basic'
+    WITH_EPISODE = 'with_episode'

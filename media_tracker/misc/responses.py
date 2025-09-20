@@ -97,3 +97,16 @@ TVShowEpisodeTranslationResponseItem: TypeAlias = Union[
     TVShowEpisodeTranslationPublic,
     TVShowEpisodeTranslationPublicWithEpisode
 ]
+
+TVShowEpisodeVisualizationPublic.model_rebuild()
+TVShowEpisodeVisualizationPublicWithEpisode.model_rebuild()
+
+TVShowEpisodeVisualizationResponse: TypeAlias = Union[
+    list[TVShowEpisodeVisualizationPublic],
+    list[TVShowEpisodeVisualizationPublicWithEpisode]
+]
+
+TVShowEpisodeVisualizationResponseItem: TypeAlias = Union[
+    TVShowEpisodeVisualizationPublic,
+    TVShowEpisodeVisualizationPublicWithEpisode
+]

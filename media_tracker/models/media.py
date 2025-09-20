@@ -356,10 +356,6 @@ class MediaPublicWithTVShowEpisodes(MediaPublic):
     """MediaPublic model including related TV show episodes."""
     tv_show_episodes: list[TVShowEpisodePublic] = []
 
-class TVShowEpisodeVisualizationPublicWithTVShow(MediaPublic):
-    """Combines TVShowEpisodeVisualizationPublic with its associated TV show (Media)."""
-    tv_show: MediaPublic
-
 class TVShowEpisodeVisualizationPublicWithEpisode(TVShowEpisodeVisualizationPublic):
     """Combines TVShowEpisodeVisualizationPublic with its associated episode."""
     episode: TVShowEpisodePublic

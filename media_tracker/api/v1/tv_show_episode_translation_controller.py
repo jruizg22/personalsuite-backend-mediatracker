@@ -14,8 +14,8 @@ from media_tracker.services import tv_show_episode_translation_service
 def get_router(get_session: Callable[[], Generator[Session, Any, None]]) -> APIRouter:
 
     router: APIRouter = APIRouter(
-        prefix="/media/translations",
-        tags=["Media Translations"]
+        prefix="/media/tv_show_episodes/translations",
+        tags=["TV Show Episodes Translations"]
     )
 
     @router.get("/", response_model=TVShowEpisodeTranslationResponse, status_code=200)
