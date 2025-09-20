@@ -58,7 +58,7 @@ def get_router(get_session: Callable[[], Generator[Session, Any, None]]) -> APIR
         Args:
             media_visualization_id (int): The unique identifier of the media visualization to retrieve.
             session (Session): Database session dependency.
-            view (MediaVisualizationView): Level of detail for the returned media.
+            view (MediaVisualizationView): Level of detail for the returned media visualization.
                 Defaults to MediaVisualizationView.BASIC.
 
         Returns:
@@ -88,12 +88,12 @@ def get_router(get_session: Callable[[], Generator[Session, Any, None]]) -> APIR
             MediaVisualizationPublic: Newly created media visualization object.
 
         Raises:
-            HTTPException: 500 if there is an error creating the media.
+            HTTPException: 500 if there is an error creating the media visualization.
         """
         try:
             return media_visualization_service.create(session, new_media_visualization)
         except Exception as e:
-            raise HTTPException(status_code=500, detail=(f"Error creating media: {e}"))
+            raise HTTPException(status_code=500, detail=(f"Error creating media visualization: {e}"))
 
     @router.put("/{media_visualization_id}", response_model=MediaVisualizationPublic, status_code=200)
     def update_media(media_visualization_id: int, media_visualization_in: MediaVisualizationUpdate, session: Session = Depends(get_session)) -> MediaVisualizationPublic:
@@ -110,7 +110,7 @@ def get_router(get_session: Callable[[], Generator[Session, Any, None]]) -> APIR
 
         Raises:
             HTTPException: 404 if the media visualization is not found.
-            HTTPException: 500 if there is an error updating the media.
+            HTTPException: 500 if there is an error updating the media visualization.
         """
         try:
             return media_visualization_service.update(session, media_visualization_id, media_visualization_in)
@@ -133,13 +133,13 @@ def get_router(get_session: Callable[[], Generator[Session, Any, None]]) -> APIR
 
         Raises:
             HTTPException: 404 if the media visualization is not found.
-            HTTPException: 500 if there is an error deleting the media.
+            HTTPException: 500 if there is an error deleting the media visualization.
         """
         try:
             media_visualization_service.delete(session, media_visualization_id)
         except ResourceNotFoundError as e:
             raise HTTPException(status_code=404, detail=(f"Resource not found: {e}"))
         except Exception as e:
-            raise HTTPException(status_code=500, detail=(f"Error deleting media with ID {media_visualization_id}: {e}"))
+            raise HTTPException(status_code=500, detail=(f"Error deleting media visualization with ID {media_visualization_id}: {e}"))
 
     return router

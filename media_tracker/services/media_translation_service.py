@@ -7,7 +7,7 @@ from sqlalchemy.exc import OperationalError, StatementError, SQLAlchemyError, Ti
 from sqlalchemy.orm import selectinload
 from sqlalchemy.orm.interfaces import LoaderOption
 from sqlalchemy.sql import Select
-from sqlmodel import Session, select
+from sqlmodel import Session, select, and_
 
 from media_tracker.misc.responses import MediaTranslationResponse, MediaTranslationResponseItem
 from media_tracker.misc.views import MediaTranslationView
@@ -60,13 +60,14 @@ def get_all(
     except Exception as e:
         raise RuntimeError(f"Unexpected error: {e}") from e
 
-def get_by_id(session: Session, media_translation_id: int, view: MediaTranslationView = MediaTranslationView.BASIC) -> MediaTranslationResponseItem:
+def get_by_id(session: Session, media_translation_id: int, language_code: str = None, view: MediaTranslationView = MediaTranslationView.BASIC) -> MediaTranslationResponseItem:
     """
     Retrieve a single media translation entry by its ID with optional detail level.
 
     Args:
         session (Session): SQLAlchemy session for database operations.
         media_translation_id (int): The ID of the media translation entry to retrieve.
+        language_code (str): The language code of the media translation entry to retrieve. If left None, all the translations with the same ID will be retrieved.
         view (MediaTranslationView): Determines the level of detail for the media translation entry.
 
     Returns:
@@ -79,8 +80,16 @@ def get_by_id(session: Session, media_translation_id: int, view: MediaTranslatio
     """
 
     try:
-        # Initialize the base query, filtering by id
-        query: Select = select(MediaTranslation).where(MediaTranslation.id == media_translation_id)
+        # Initialize the base query, filtering by id and language code, if necessary
+        if not language_code:
+            query: Select = select(MediaTranslation).where(MediaTranslation.media_id == media_translation_id)
+        else:
+            query: Select = select(MediaTranslation).where(
+                and_(
+                    MediaTranslation.media_id == media_translation_id,
+                    MediaTranslation.language_code == language_code
+                )
+            )
 
         # Set the level of detail requested
         query: Select = set_media_translation_detail_level(query, view)
@@ -89,7 +98,10 @@ def get_by_id(session: Session, media_translation_id: int, view: MediaTranslatio
         # If it doesn't exist, it will throw an error
         media_translation_db: MediaTranslation | None = session.exec(query).first()
         if not media_translation_db:
-            raise ResourceNotFoundError(f"MediaTranslation with ID {media_translation_id} not found")
+            if not language_code:
+                raise ResourceNotFoundError(f"MediaTranslation with ID {media_translation_id} not found")
+            else:
+                raise ResourceNotFoundError(f"MediaTranslation with ID {media_translation_id} and language code {language_code} not found")
 
         # Encase the item in the requested model
         response_model = set_media_translation_response_model(media_translation_db, view)
@@ -143,13 +155,14 @@ def create(session: Session, new_media_translation: MediaTranslationCreate) -> M
         session.rollback()
         raise RuntimeError(f"Unexpected error: {e}") from e
 
-def update(session: Session, media_translation_id: int, media_translation_in: MediaTranslationUpdate) -> MediaTranslationPublic:
+def update(session: Session, media_translation_id: int, language_code: str, media_translation_in: MediaTranslationUpdate) -> MediaTranslationPublic:
     """
     Update an existing media translation entry.
 
     Args:
         session (Session): SQLAlchemy session for database operations.
         media_translation_id (int): The ID of the media translation entry to update.
+        language_code (str): The language code of the media translation entry to update.
         media_translation_in (MediaTranslationUpdate): Partial data for updating the media translation entry.
 
     Returns:
@@ -164,9 +177,9 @@ def update(session: Session, media_translation_id: int, media_translation_in: Me
     try:
         # Retrieve the record to update from the database
         # If it does not exist, it will throw an error
-        media_translation_db: MediaTranslation = session.get(MediaTranslation, media_translation_id) # type: ignore[arg-type]
+        media_translation_db: MediaTranslation = session.get(MediaTranslation, (media_translation_id, language_code))  # type: ignore[arg-type]
         if not media_translation_db:
-            raise ResourceNotFoundError(f"MediaTranslation with ID {media_translation_id} not found")
+            raise ResourceNotFoundError(f"MediaTranslation with ID {media_translation_id} and language code {language_code} not found")
 
         # Retrieve the input data to update the necessary fields
         media_translation_data: dict[str, Any] = media_translation_in.model_dump(exclude_unset=True)
@@ -193,13 +206,14 @@ def update(session: Session, media_translation_id: int, media_translation_in: Me
         session.rollback()
         raise RuntimeError(f"Unexpected error: {e}") from e
 
-def delete(session: Session, media_translation_id: int) -> None:
+def delete(session: Session, media_translation_id: int, language_code: str) -> None:
     """
     Delete a media translation entry from the database.
 
     Args:
         session (Session): SQLAlchemy session for database operations.
         media_translation_id (int): The ID of the media translation entry to delete.
+        language_code (str): The language code of the media translation entry to delete.
 
     Raises:
         ResourceNotFoundError: If the media translation entry is not found.
@@ -241,8 +255,8 @@ def set_media_translation_detail_level(query: Select, view: MediaTranslationView
 
     options_list: list[LoaderOption] = []
 
-    if view in MediaTranslationView.WITH_MEDIA:
-        options_list.append(selectinload(Media.translations)) # type: ignore[arg-type]
+    if view == MediaTranslationView.WITH_MEDIA:
+        options_list.append(selectinload(MediaTranslation.media)) # type: ignore[arg-type]
 
     return query.options(*options_list) if options_list else query
 

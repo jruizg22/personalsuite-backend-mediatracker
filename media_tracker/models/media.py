@@ -259,7 +259,6 @@ class TVShowEpisodePublic(TVShowEpisodeBase):
 class TVShowEpisodeUpdate(SQLModel):
     """Model for updating a TV show episode; all fields are optional."""
     tv_show_id: int | None = None
-    tmdb_id: int | None = None
     season_num: int | None = None
     episode_num: int | None = None
     original_title: str | None = None
@@ -373,9 +372,17 @@ class TVShowEpisodeTranslationPublicWithEpisode(TVShowEpisodeTranslationPublic):
     """Combines TVShowEpisodeTranslationPublic with its associated episode."""
     episode: TVShowEpisodePublic
 
+class TVShowEpisodePublicWithTVShow(TVShowEpisodePublic):
+    """Combines TVShowEpisodePublic with its associated TV show (media)."""
+    tv_show: Media
+
 class TVShowEpisodePublicWithTranslations(TVShowEpisodePublic):
     """Combines TVShowEpisodePublic with its associated translations."""
     translations: list[TVShowEpisodeTranslationPublic] = []
+
+class TVShowEpisodePublicWithVisualizations(TVShowEpisodePublic):
+    """Combines TVShowEpisodePublic with its associated visualizations."""
+    visualizations: list[TVShowEpisodeVisualizationPublic] = []
 
 class TVShowEpisodeFull(TVShowEpisodePublic):
     """Comprehensive model combining TVShowEpisodePublic with translations and visualizations."""

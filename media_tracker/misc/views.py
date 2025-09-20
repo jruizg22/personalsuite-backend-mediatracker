@@ -24,3 +24,9 @@ class MediaTranslationView(str, Enum):
 class MediaVisualizationView(str, Enum):
     BASIC = 'basic'
     WITH_MEDIA = 'with_media'
+
+class TVShowEpisodeView(str, Enum):
+    BASIC = 'basic'
+    WITH_TV_SHOW = 'with_tv_show'
+    WITH_TRANSLATIONS = 'with_translations'
+    WITH_VISUALIZATIONS = 'with_visualizations'

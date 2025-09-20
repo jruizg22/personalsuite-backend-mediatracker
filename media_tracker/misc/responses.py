@@ -1,9 +1,7 @@
 # --- Rebuilding models with forward references ---
 from typing import TypeAlias, Union
 
-from media_tracker.models.media import MediaPublic, MediaPublicWithTranslations, MediaPublicWithVisualizations, \
-    MediaFull, TVShowEpisodePublic, MediaFullWithTVShowEpisodes, MediaTranslationPublic, \
-    MediaTranslationPublicWithMedia, MediaVisualizationPublic, MediaVisualizationPublicWithMedia
+from media_tracker.models.media import *
 
 # These calls to .model_rebuild() force Pydantic/SQLModel to "resolve"
 # type annotations declared as strings (forward references).
@@ -67,4 +65,22 @@ MediaVisualizationResponse: TypeAlias = Union[
 MediaVisualizationResponseItem: TypeAlias = Union[
     MediaVisualizationPublic,
     MediaVisualizationPublicWithMedia
+]
+
+TVShowEpisodePublicWithTVShow.model_rebuild()
+TVShowEpisodePublicWithTranslations.model_rebuild()
+TVShowEpisodePublicWithVisualizations.model_rebuild()
+
+TVShowEpisodeResponse: TypeAlias = Union[
+    list[TVShowEpisodePublic],
+    list[TVShowEpisodePublicWithTVShow],
+    list[TVShowEpisodePublicWithTranslations],
+    list[TVShowEpisodePublicWithVisualizations]
+]
+
+TVShowEpisodeResponseItem: TypeAlias = Union[
+    TVShowEpisodePublic,
+    TVShowEpisodePublicWithTVShow,
+    TVShowEpisodePublicWithTranslations,
+    TVShowEpisodePublicWithVisualizations
 ]

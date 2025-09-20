@@ -241,8 +241,8 @@ def set_media_visualization_detail_level(query: Select, view: MediaVisualization
 
     options_list: list[LoaderOption] = []
 
-    if view in MediaVisualizationView.WITH_MEDIA:
-        options_list.append(selectinload(Media.visualizations)) # type: ignore[arg-type]
+    if view == MediaVisualizationView.WITH_MEDIA:
+        options_list.append(selectinload(MediaVisualization.media)) # type: ignore[arg-type]
 
     return query.options(*options_list) if options_list else query
 
