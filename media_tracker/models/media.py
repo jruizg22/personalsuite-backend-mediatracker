@@ -1,13 +1,13 @@
+import enum
 from datetime import date
-from enum import Enum
 from typing import List
 
-from sqlmodel import SQLModel, Field, Relationship
+from sqlmodel import SQLModel, Field, Relationship, Column, Enum as SMEnum
 
 from ..constants import TITLE_MAX_LENGTH, LANGUAGE_CODE_MAX_LENGTH
 
 
-class MediaType(str, Enum):
+class MediaType(str, enum.Enum):
     """
     Enum representing different types of media.
 
@@ -27,13 +27,34 @@ class MediaBase(SQLModel):
     Base model for Media with common fields.
 
     Attributes:
-        tmdb_id (int | None): Optional TMDB identifier for the media.
-        type (MediaType): The type of media (movie, TV show, etc.).
-        original_title (str): The original title of the media.
-        release_date (date | None): Optional release date of the media.
+        tmdb_id (int | None):
+            Optional TMDB identifier for the media.
+
+        type (MediaType):
+            The type of media, stored as a native PostgreSQL ENUM
+            with values ('movie', 'tv_show', 'other').
+            This ensures strong validation at both the application
+            (via Pydantic/SQLModel) and database level.
+
+        original_title (str):
+            The original title of the media. Cannot be null and has
+            a maximum length defined by TITLE_MAX_LENGTH. Indexed for faster lookup.
+
+        release_date (date | None):
+            Optional release date of the media. If not provided,
+            the field remains null.
     """
     tmdb_id: int | None = Field(default=None, index=True)
-    type: MediaType = Field(nullable=False)
+    type: MediaType = Field(
+        sa_column=Column(
+            SMEnum(
+                MediaType,
+                name="media_type",
+                native_enum=True,
+                values_callable=lambda x: [e.value for e in x]
+            )
+        )
+    )
     original_title: str = Field(nullable=False, max_length=TITLE_MAX_LENGTH, index=True)
     release_date: date | None = None
 
