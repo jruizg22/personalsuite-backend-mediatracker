@@ -7,27 +7,30 @@ from sqlalchemy.exc import OperationalError, StatementError, SQLAlchemyError, Ti
 from sqlalchemy.orm import selectinload
 from sqlmodel import Session, select
 
+# The import will work when the module is installed into the core
+from core.exceptions import ResourceNotFoundError # type: ignore
+
 from media_tracker.models.media import *
 
 
 def get_all(session: Session, media_type: Optional[MediaType], offset: int = 0, limit: int = 0, view: MediaView = MediaView.BASIC) -> MediaResponse:
     """
-        Retrieve a list of media entries from the database with optional filtering by media type and detail level.
+    Retrieve a list of media entries from the database with optional filtering by media type and detail level.
 
-        Args:
-            session (Session): SQLAlchemy session for database operations.
-            media_type (Optional[MediaType]): Filter by media type (movie, TV show, other). If None, retrieves all types.
-            offset (int): Number of items to skip for pagination.
-            limit (int): Maximum number of items to return. If 0, no limit is applied.
-            view (MediaView): Determines the level of detail for each media entry.
+    Args:
+        session (Session): SQLAlchemy session for database operations.
+        media_type (Optional[MediaType]): Filter by media type (movie, TV show, other). If None, retrieves all types.
+        offset (int): Number of items to skip for pagination.
+        limit (int): Maximum number of items to return. If 0, no limit is applied.
+        view (MediaView): Determines the level of detail for each media entry.
 
-        Returns:
-            MediaResponse: A list of media entries serialized according to the specified view.
+    Returns:
+        MediaResponse: A list of media entries serialized according to the specified view.
 
-        Raises:
-            RuntimeError: If a database or unexpected error occurs.
-            ValueError: If a data validation error occurs.
-        """
+    Raises:
+        RuntimeError: If a database or unexpected error occurs.
+        ValueError: If a data validation error occurs.
+    """
 
     try:
         # Initialize the base query
@@ -67,7 +70,8 @@ def get_by_id(session: Session, media_id: int, view: MediaView = MediaView.BASIC
         MediaResponseItem: The requested media entry serialized according to the specified view.
 
     Raises:
-        RuntimeError: If the media entry is not found or a database/unexpected error occurs.
+        ResourceNotFoundError: If the media entry is not found.
+        RuntimeError: If a database/unexpected error occurs.
         ValueError: If a data validation error occurs.
     """
 
@@ -82,12 +86,14 @@ def get_by_id(session: Session, media_id: int, view: MediaView = MediaView.BASIC
         # If it doesn't exist, it will throw an error
         media_db: Media | None = session.exec(query).first()
         if not media_db:
-            raise RuntimeError(f"Media with ID {media_id} not found")
+            raise ResourceNotFoundError(f"Media with ID {media_id} not found")
 
         # Encase the item in the requested model
         response_model = set_media_response_model(media_db, view)
 
         return response_model
+    except ResourceNotFoundError as e:
+        raise ResourceNotFoundError(e)
     except (OperationalError, StatementError, SQLAlchemyError, TimeoutError, DBAPIError) as e:
         raise RuntimeError(f"Database error: {e}") from e
     except (ValidationError, TypeError) as e:
@@ -147,7 +153,8 @@ def update(session: Session, media_id: int, media_in: MediaUpdate) -> MediaPubli
         MediaPublic: The updated media entry serialized for public exposure.
 
     Raises:
-        RuntimeError: If the media entry is not found or a database/unexpected error occurs.
+        ResourceNotFoundError: If the media entry is not found.
+        RuntimeError: If a database/unexpected error occurs.
         ValueError: If a data validation error occurs.
     """
 
@@ -156,7 +163,7 @@ def update(session: Session, media_id: int, media_in: MediaUpdate) -> MediaPubli
         # If it does not exist, it will throw an error
         media_db: Media = session.get(Media, media_id) # type: ignore[arg-type]
         if not media_db:
-            raise RuntimeError(f"Media with ID {media_id} not found")
+            raise ResourceNotFoundError(f"Media with ID {media_id} not found")
 
         # Retrieve the input data to update the necessary fields
         media_data: dict[str, Any] = media_in.model_dump(exclude_unset=True)
@@ -171,6 +178,8 @@ def update(session: Session, media_id: int, media_in: MediaUpdate) -> MediaPubli
         session.refresh(media_db)
 
         return MediaPublic.model_validate(media_db)
+    except ResourceNotFoundError as e:
+        raise ResourceNotFoundError(e)
     except (OperationalError, StatementError, SQLAlchemyError, TimeoutError, DBAPIError) as e:
         session.rollback()
         raise RuntimeError(f"Database error: {e}") from e
@@ -190,7 +199,8 @@ def delete(session: Session, media_id: int) -> None:
         media_id (int): The ID of the media entry to delete.
 
     Raises:
-        RuntimeError: If the media entry is not found or a database/unexpected error occurs.
+        ResourceNotFoundError: If the media entry is not found.
+        RuntimeError: If a database/unexpected error occurs.
     """
 
     try:
@@ -198,13 +208,15 @@ def delete(session: Session, media_id: int) -> None:
         # If it does not exist, it will throw an error
         media: Media = session.get(Media, media_id) # type: ignore[arg-type]
         if not media:
-            raise RuntimeError(f"Media with ID {media_id} not found")
+            raise ResourceNotFoundError(f"Media with ID {media_id} not found")
 
         # Delete the record
         session.delete(media)
 
         # Save the changes to the database
         session.commit()
+    except ResourceNotFoundError as e:
+        raise ResourceNotFoundError(e)
     except (OperationalError, StatementError, SQLAlchemyError, TimeoutError, DBAPIError) as e:
         session.rollback()
         raise RuntimeError(f"Database error: {e}") from e
