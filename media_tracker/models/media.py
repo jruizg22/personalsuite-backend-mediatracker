@@ -1,27 +1,11 @@
 from datetime import date
 from enum import Enum
-from typing import List, Union, TypeAlias
+from typing import List
 
 from sqlmodel import SQLModel, Field, Relationship
 
 from ..constants import TITLE_MAX_LENGTH, LANGUAGE_CODE_MAX_LENGTH
 
-class MediaView(str, Enum):
-    """
-    Enum representing different views for media retrieval.
-
-    Attributes:
-        BASIC: Basic view with minimal fields.
-        WITH_VISUALIZATIONS: View including associated visualizations.
-        WITH_TRANSLATIONS: View including associated translations.
-        FULL: Full view with all related data.
-        FULL_WITH_TV_SHOW_EPISODES: Full view including TV show episodes.
-    """
-    BASIC = 'basic'
-    WITH_VISUALIZATIONS = 'with_visualizations'
-    WITH_TRANSLATIONS = 'with_translations'
-    FULL = 'full'
-    FULL_WITH_TV_SHOW_EPISODES = 'full_with_tv_show_episodes'
 
 class MediaType(str, Enum):
     """
@@ -382,44 +366,3 @@ class TVShowEpisodeFull(TVShowEpisodePublic):
 class TVShowEpisodeFullWithTVShow(TVShowEpisodeFull):
     """Comprehensive model combining TVShowEpisodeFull with its parent TV show (Media)."""
     tv_show: MediaPublic
-
-
-# --- Rebuilding models with forward references ---
-
-# These calls to .model_rebuild() force Pydantic/SQLModel to "resolve"
-# type annotations declared as strings (forward references).
-# They are necessary when we have models that reference each other
-# (e.g., MediaFullWithTVShowEpisodes → TVShowEpisodePublic)
-# and are defined in separate modules or have circular dependencies.
-
-MediaPublic.model_rebuild()
-MediaPublicWithTranslations.model_rebuild()
-MediaPublicWithVisualizations.model_rebuild()
-MediaFull.model_rebuild()
-TVShowEpisodePublic.model_rebuild()
-MediaFullWithTVShowEpisodes.model_rebuild()
-
-# --- TypeAlias for endpoint responses ---
-
-# MediaResponse is a union of several possible output models.
-# It allows us to declare, in a single alias, the different "views" of a Media,
-# so endpoints can use MediaResponse as response_model
-# and indicate that they will return a list of any of these variants.
-
-MediaResponse: TypeAlias = Union[
-    list[MediaPublic],
-    list[MediaPublicWithTranslations],
-    list[MediaPublicWithVisualizations],
-    list[MediaFull],
-    list[MediaFullWithTVShowEpisodes]
-]
-
-# MediaResponseItem for individual objects
-
-MediaResponseItem: TypeAlias = Union[
-    MediaPublic,
-    MediaPublicWithTranslations,
-    MediaPublicWithVisualizations,
-    MediaFull,
-    MediaFullWithTVShowEpisodes
-]

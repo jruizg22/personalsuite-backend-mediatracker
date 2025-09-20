@@ -10,10 +10,19 @@ from sqlmodel import Session, select
 # The import will work when the module is installed into the core
 from core.exceptions import ResourceNotFoundError # type: ignore
 
-from media_tracker.models.media import *
+from media_tracker.models.media import MediaType, Media, MediaCreate, MediaPublic, MediaPublicWithTranslations, \
+    MediaPublicWithVisualizations, MediaFull, MediaFullWithTVShowEpisodes, MediaUpdate
+from media_tracker.misc.views import MediaView
+from media_tracker.misc.responses import MediaResponse, MediaResponseItem
 
 
-def get_all(session: Session, media_type: Optional[MediaType], offset: int = 0, limit: int = 0, view: MediaView = MediaView.BASIC) -> MediaResponse:
+def get_all(
+        session: Session,
+        media_type: Optional[MediaType],
+        offset: int = 0,
+        limit: int = 0,
+        view: MediaView = MediaView.BASIC
+) -> MediaResponse:
     """
     Retrieve a list of media entries from the database with optional filtering by media type and detail level.
 

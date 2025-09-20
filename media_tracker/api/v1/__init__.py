@@ -3,7 +3,8 @@ from typing import Callable, Generator, Any
 from fastapi import APIRouter
 from sqlmodel import Session
 
-from . import media_controller
+from .media_controller import get_router as media_router
+from .media_translation_controller import get_router as media_translation_router
 
 
 def get_router(get_session: Callable[[], Generator[Session, Any, None]]) -> APIRouter:
@@ -11,6 +12,7 @@ def get_router(get_session: Callable[[], Generator[Session, Any, None]]) -> APIR
         prefix="/v1",
     )
 
-    router.include_router(media_controller.get_router(get_session))
+    router.include_router(media_router(get_session))
+    router.include_router(media_translation_router(get_session))
 
     return router
