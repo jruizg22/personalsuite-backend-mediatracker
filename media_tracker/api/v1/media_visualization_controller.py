@@ -47,7 +47,7 @@ def get_router(get_session: Callable[[], Generator[Session, Any, None]]) -> APIR
             raise HTTPException(status_code=500, detail=(f"Error fetching media visualization: {e}"))
 
     @router.get("/{media_visualization_id}", response_model=MediaVisualizationResponseItem, status_code=200)
-    def get_media_by_id(
+    def get_media_visualizations_by_id(
             media_visualization_id: int,
             session: Session = Depends(get_session),
             view: MediaVisualizationView = MediaVisualizationView.BASIC
@@ -76,7 +76,7 @@ def get_router(get_session: Callable[[], Generator[Session, Any, None]]) -> APIR
             raise HTTPException(status_code=500, detail=(f"Error fetching media visualization with ID {media_visualization_id}: {e}"))
 
     @router.post("/", response_model=MediaVisualizationPublic, status_code=201)
-    def create_media(new_media_visualization: MediaVisualizationCreate, session: Session = Depends(get_session)) -> MediaVisualizationPublic:
+    def create_media_visualization(new_media_visualization: MediaVisualizationCreate, session: Session = Depends(get_session)) -> MediaVisualizationPublic:
         """
         Create a new media visualization entry in the database.
 
@@ -96,7 +96,7 @@ def get_router(get_session: Callable[[], Generator[Session, Any, None]]) -> APIR
             raise HTTPException(status_code=500, detail=(f"Error creating media visualization: {e}"))
 
     @router.put("/{media_visualization_id}", response_model=MediaVisualizationPublic, status_code=200)
-    def update_media(media_visualization_id: int, media_visualization_in: MediaVisualizationUpdate, session: Session = Depends(get_session)) -> MediaVisualizationPublic:
+    def update_media_visualization(media_visualization_id: int, media_visualization_in: MediaVisualizationUpdate, session: Session = Depends(get_session)) -> MediaVisualizationPublic:
         """
         Update an existing media entry by its ID.
 
@@ -120,7 +120,7 @@ def get_router(get_session: Callable[[], Generator[Session, Any, None]]) -> APIR
             raise HTTPException(status_code=500, detail=(f"Error updating media visualization with ID {media_visualization_id}: {e}"))
 
     @router.delete("/{media_visualization_id}", status_code=204)
-    def delete_media(media_visualization_id: int, session: Session = Depends(get_session)) -> None:
+    def delete_media_visualization(media_visualization_id: int, session: Session = Depends(get_session)) -> None:
         """
         Delete a media visualization entry by its ID.
 
