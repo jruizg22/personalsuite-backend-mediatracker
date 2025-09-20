@@ -11,7 +11,6 @@ Table to store TV show episodes.
 CREATE TABLE tv_show_episodes (
 	id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
 	tv_show_id BIGINT, -- Foreign key to media table where type='tv_show'
-	tmdb_id BIGINT, -- The Movie Database (TMDb) ID for the episode
 	season_num INT, -- Season number
 	episode_num INT, -- Episode number
 	original_title titleLength NOT NULL, -- Original title of the episode

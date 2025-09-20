@@ -25,7 +25,7 @@ DROP TYPE IF EXISTS media_type CASCADE;
 Domain definitions for consistent ID and url/title formats.
 */
 CREATE DOMAIN titleLength AS VARCHAR(255); -- Titles up to 255 characters
-CREATE DOMAIN languageCode AS VARCHAR(5); -- Locale codes (BCP 47) (e.g., 'en-US', 'es-ES')
+CREATE DOMAIN languageCode AS VARCHAR(5) CHECK (VALUE ~ '^[a-z]{2}-[A-Z]{2}$'); -- Locale codes (BCP 47) (e.g., 'en-US', 'es-ES')
 CREATE DOMAIN channelId AS VARCHAR(32);
 CREATE DOMAIN videoId AS VARCHAR(16);
 CREATE DOMAIN playlistId AS VARCHAR(40);
@@ -51,7 +51,7 @@ BEGIN
 
     -- Validate that it's a 'tv_show'
     IF media_type IS NULL THEN
-        RAISE EXCEPTION 'Media with id % not found', NEW.media_id;
+        RAISE EXCEPTION 'Media with id % not found', NEW.tv_show_id;
     ELSIF media_type <> 'tv_show' THEN
         RAISE EXCEPTION 'A TV episode can not be inserted into a media that is not a TV show (id: %)', NEW.media_id;
     END IF;

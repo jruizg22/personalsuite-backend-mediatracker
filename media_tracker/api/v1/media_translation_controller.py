@@ -46,7 +46,7 @@ def get_router(get_session: Callable[[], Generator[Session, Any, None]]) -> APIR
         except Exception as e:
             raise HTTPException(status_code=500, detail=(f"Error fetching media translation: {e}"))
 
-    @router.get("/{media_translation_id}", response_model=dict, status_code=200)
+    @router.get("/{media_translation_id}", response_model=MediaTranslationResponseItem, status_code=200)
     def get_media_by_id(
             media_translation_id: int,
             session: Session = Depends(get_session),

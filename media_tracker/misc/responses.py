@@ -2,7 +2,8 @@
 from typing import TypeAlias, Union
 
 from media_tracker.models.media import MediaPublic, MediaPublicWithTranslations, MediaPublicWithVisualizations, \
-    MediaFull, TVShowEpisodePublic, MediaFullWithTVShowEpisodes, MediaTranslationPublic, MediaTranslationPublicWithMedia
+    MediaFull, TVShowEpisodePublic, MediaFullWithTVShowEpisodes, MediaTranslationPublic, \
+    MediaTranslationPublicWithMedia, MediaVisualizationPublic, MediaVisualizationPublicWithMedia
 
 # These calls to .model_rebuild() force Pydantic/SQLModel to "resolve"
 # type annotations declared as strings (forward references).
@@ -53,4 +54,17 @@ MediaTranslationResponse: TypeAlias = Union[
 MediaTranslationResponseItem: TypeAlias = Union[
     MediaTranslationPublic,
     MediaTranslationPublicWithMedia
+]
+
+MediaVisualizationPublic.model_rebuild()
+MediaVisualizationPublicWithMedia.model_rebuild()
+
+MediaVisualizationResponse: TypeAlias = Union[
+    list[MediaVisualizationPublic],
+    list[MediaVisualizationPublicWithMedia]
+]
+
+MediaVisualizationResponseItem: TypeAlias = Union[
+    MediaVisualizationPublic,
+    MediaVisualizationPublicWithMedia
 ]

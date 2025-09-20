@@ -217,13 +217,11 @@ class TVShowEpisodeBase(SQLModel):
 
     Attributes:
         tv_show_id (int): Foreign key to the parent TV show (Media.id).
-        tmdb_id (int | None): Optional TMDB identifier for the episode.
         season_num (int | None): Season number of the episode.
         episode_num (int | None): Episode number within the season.
         original_title (str): Original title of the episode.
     """
     tv_show_id: int = Field(foreign_key="media.id", index=True)
-    tmdb_id: int | None = Field(default=None, index=True)
     season_num: int | None = None
     episode_num: int | None = None
     original_title: str = Field(nullable=False, max_length=TITLE_MAX_LENGTH, index=True)

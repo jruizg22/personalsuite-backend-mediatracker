@@ -20,3 +20,7 @@ class MediaView(str, Enum):
 class MediaTranslationView(str, Enum):
     BASIC = 'basic'
     WITH_MEDIA = 'with_media'
+
+class MediaVisualizationView(str, Enum):
+    BASIC = 'basic'
+    WITH_MEDIA = 'with_media'
