@@ -25,6 +25,7 @@ class Module:
             app (FastAPI): The main FastAPI application instance.
             engine (Engine): The database engine used to create sessions.
         """
+        self.name: str = "Media Tracker"
         self.app: FastAPI = app
         self.engine: Engine = engine
 
