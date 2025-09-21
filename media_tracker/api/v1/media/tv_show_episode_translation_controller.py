@@ -5,8 +5,8 @@ from core.exceptions import ResourceNotFoundError  # type: ignore
 from fastapi import APIRouter, HTTPException, Depends, Query
 from sqlmodel import Session
 
-from media_tracker.misc.responses import TVShowEpisodeTranslationResponse, TVShowEpisodeTranslationResponseItem
-from media_tracker.misc.views import TVShowEpisodeTranslationView
+from media_tracker.responses.media_responses import TVShowEpisodeTranslationResponse, TVShowEpisodeTranslationResponseItem
+from media_tracker.views.media_views import TVShowEpisodeTranslationView
 from media_tracker.models.media import TVShowEpisodeTranslationPublic, TVShowEpisodeTranslationCreate, TVShowEpisodeTranslationUpdate
 from media_tracker.services import tv_show_episode_translation_service
 

@@ -9,8 +9,8 @@ from sqlalchemy.orm.interfaces import LoaderOption
 from sqlalchemy.sql import Select
 from sqlmodel import Session, select, and_
 
-from media_tracker.misc.responses import MediaTranslationResponse, MediaTranslationResponseItem
-from media_tracker.misc.views import MediaTranslationView
+from media_tracker.responses.media_responses import MediaTranslationResponse, MediaTranslationResponseItem
+from media_tracker.views.media_views import MediaTranslationView
 from media_tracker.models.media import MediaTranslationPublic, MediaTranslationPublicWithMedia, MediaTranslation, \
     MediaTranslationCreate, MediaTranslationUpdate
 

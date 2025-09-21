@@ -9,8 +9,8 @@ from sqlalchemy.orm.interfaces import LoaderOption
 from sqlalchemy.sql import Select
 from sqlmodel import Session, select
 
-from media_tracker.misc.responses import TVShowEpisodeVisualizationResponse, TVShowEpisodeVisualizationResponseItem
-from media_tracker.misc.views import TVShowEpisodeVisualizationView
+from media_tracker.responses.media_responses import TVShowEpisodeVisualizationResponse, TVShowEpisodeVisualizationResponseItem
+from media_tracker.views.media_views import TVShowEpisodeVisualizationView
 from media_tracker.models.media import TVShowEpisodeVisualizationPublic, TVShowEpisodeVisualizationPublicWithEpisode, TVShowEpisodeVisualization, \
     TVShowEpisodeVisualizationCreate, TVShowEpisodeVisualizationUpdate
 

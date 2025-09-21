@@ -12,8 +12,8 @@ from core.exceptions import ResourceNotFoundError # type: ignore
 
 from media_tracker.models.media import MediaType, Media, MediaCreate, MediaPublic, MediaPublicWithTranslations, \
     MediaPublicWithVisualizations, MediaFull, MediaFullWithTVShowEpisodes, MediaUpdate
-from media_tracker.misc.views import MediaView
-from media_tracker.misc.responses import MediaResponse, MediaResponseItem
+from media_tracker.views.media_views import MediaView
+from media_tracker.responses.media_responses import MediaResponse, MediaResponseItem
 
 
 def get_all(
