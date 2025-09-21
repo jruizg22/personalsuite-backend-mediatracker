@@ -8,29 +8,29 @@ from sqlalchemy.exc import OperationalError, StatementError, SQLAlchemyError, Ti
 from sqlalchemy.orm.interfaces import LoaderOption
 from sqlmodel import Session, select
 
-from media_tracker.models.yt import YTChannel, YTChannelPublic, YTChannelPublicWithVideos, YTChannelPublicWithPlaylists, \
-    YTChannelFull, YTChannelCreate, YTChannelUpdate
-from media_tracker.responses.youtube_responses import YTChannelResponse, YTChannelResponseItem
-from media_tracker.views.youtube_views import YTChannelView
+from media_tracker.models.yt import YTVideo, YTVideoPublic, YTVideoPublicWithVisualizations, YTVideoPublicWithPlaylists, \
+    YTVideoPublicWithChannel, YTVideoFull, YTVideoCreate, YTVideoUpdate
+from media_tracker.responses.youtube_responses import YTVideoResponse, YTVideoResponseItem
+from media_tracker.views.youtube_views import YTVideoView
 
 
 def get_all(
         session: Session,
         offset: int = 0,
         limit: int = 0,
-        view: YTChannelView = YTChannelView.BASIC
-) -> YTChannelResponse:
+        view: YTVideoView = YTVideoView.BASIC
+) -> YTVideoResponse:
     """
-    Retrieve a list of YouTube channel entries from the database with optional filtering by YouTube channel type and detail level.
+    Retrieve a list of YouTube video entries from the database with optional filtering by YouTube video type and detail level.
 
     Args:
         session (Session): SQLAlchemy session for database operations.
         offset (int): Number of items to skip for pagination.
         limit (int): Maximum number of items to return. If 0, no limit is applied.
-        view (YTChannelView): Determines the level of detail for each YouTube channel entry.
+        view (YTVideoView): Determines the level of detail for each YouTube video entry.
 
     Returns:
-        YTChannelResponse: A list of YouTube channel entries serialized according to the specified view.
+        YTVideoResponse: A list of YouTube video entries serialized according to the specified view.
 
     Raises:
         RuntimeError: If a database or unexpected error occurs.
@@ -39,16 +39,16 @@ def get_all(
 
     try:
         # Initialize the base query
-        query: Select = select(YTChannel)
+        query: Select = select(YTVideo)
 
         # Set the level of detail requested
-        query: Select = set_yt_channel_detail_level(query, view)
+        query: Select = set_yt_video_detail_level(query, view)
 
-        # Retrieve all the YouTube channel with the configuration set in the previous steps
-        yt_channel_list: list[YTChannel] = session.exec(query.offset(offset).limit(limit if limit > 0 else None)).all() # type: ignore[arg-type]
+        # Retrieve all the YouTube video with the configuration set in the previous steps
+        yt_video_list: list[YTVideo] = session.exec(query.offset(offset).limit(limit if limit > 0 else None)).all() # type: ignore[arg-type]
 
         # Iterate the list to encase each item in the model requested
-        response_model: list[YTChannelResponseItem] = [set_yt_channel_response_model(yt_channel, view) for yt_channel in yt_channel_list]
+        response_model: list[YTVideoResponseItem] = [set_yt_video_response_model(yt_video, view) for yt_video in yt_video_list]
 
         return response_model
 
@@ -59,39 +59,39 @@ def get_all(
     except Exception as e:
         raise RuntimeError(f"Unexpected error: {e}") from e
 
-def get_by_id(session: Session, yt_channel_id: int, view: YTChannelView = YTChannelView.BASIC) -> YTChannelResponseItem:
+def get_by_id(session: Session, yt_video_id: int, view: YTVideoView = YTVideoView.BASIC) -> YTVideoResponseItem:
     """
-    Retrieve a single YouTube channel entry by its ID with optional detail level.
+    Retrieve a single YouTube video entry by its ID with optional detail level.
 
     Args:
         session (Session): SQLAlchemy session for database operations.
-        yt_channel_id (int): The ID of the YouTube channel entry to retrieve.
-        view (YTChannelView): Determines the level of detail for the YouTube channel entry.
+        yt_video_id (int): The ID of the YouTube video entry to retrieve.
+        view (YTVideoView): Determines the level of detail for the YouTube video entry.
 
     Returns:
-        YTChannelResponseItem: The requested YouTube channel entry serialized according to the specified view.
+        YTVideoResponseItem: The requested YouTube video entry serialized according to the specified view.
 
     Raises:
-        ResourceNotFoundError: If the YouTube channel entry is not found.
+        ResourceNotFoundError: If the YouTube video entry is not found.
         RuntimeError: If a database/unexpected error occurs.
         ValueError: If a data validation error occurs.
     """
 
     try:
         # Initialize the base query, filtering by id
-        query: Select = select(YTChannel).where(YTChannel.id == yt_channel_id)
+        query: Select = select(YTVideo).where(YTVideo.id == yt_video_id)
 
         # Set the level of detail requested
-        query: Select = set_yt_channel_detail_level(query, view)
+        query: Select = set_yt_video_detail_level(query, view)
 
-        # Retrieve the YouTube channel with the configuration set in the previous steps
+        # Retrieve the YouTube video with the configuration set in the previous steps
         # If it doesn't exist, it will throw an error
-        yt_channel_db: YTChannel | None = session.exec(query).first()
-        if not yt_channel_db:
-            raise ResourceNotFoundError(f"YTChannel with ID {yt_channel_id} not found")
+        yt_video_db: YTVideo | None = session.exec(query).first()
+        if not yt_video_db:
+            raise ResourceNotFoundError(f"YTVideo with ID {yt_video_id} not found")
 
         # Encase the item in the requested model
-        response_model = set_yt_channel_response_model(yt_channel_db, view)
+        response_model = set_yt_video_response_model(yt_video_db, view)
 
         return response_model
     except ResourceNotFoundError as e:
@@ -103,16 +103,16 @@ def get_by_id(session: Session, yt_channel_id: int, view: YTChannelView = YTChan
     except Exception as e:
         raise RuntimeError(f"Unexpected error: {e}") from e
 
-def create(session: Session, new_yt_channel: YTChannelCreate) -> YTChannelPublic:
+def create(session: Session, new_yt_video: YTVideoCreate) -> YTVideoPublic:
     """
-    Create a new YouTube channel entry in the database.
+    Create a new YouTube video entry in the database.
 
     Args:
         session (Session): SQLAlchemy session for database operations.
-        new_yt_channel (YTChannelCreate): Input data for creating a new YouTube channel entry.
+        new_yt_video (YTVideoCreate): Input data for creating a new YouTube video entry.
 
     Returns:
-        YTChannelPublic: The newly created YouTube channel entry serialized for public exposure.
+        YTVideoPublic: The newly created YouTube video entry serialized for public exposure.
 
     Raises:
         RuntimeError: If a database or unexpected error occurs.
@@ -121,17 +121,17 @@ def create(session: Session, new_yt_channel: YTChannelCreate) -> YTChannelPublic
 
     try:
         # Create the new database record
-        yt_channel: YTChannel = YTChannel(**new_yt_channel.model_dump())
+        yt_video: YTVideo = YTVideo(**new_yt_video.model_dump())
 
         # Add the record to the session
-        session.add(yt_channel)
+        session.add(yt_video)
 
         # Commit the changes, storing the new record in the database
         session.commit()
 
         # Refresh the record model to get the whole record with the id generated by the database
-        session.refresh(yt_channel)
-        return YTChannelPublic.model_validate(yt_channel)
+        session.refresh(yt_video)
+        return YTVideoPublic.model_validate(yt_video)
     except (OperationalError, StatementError, SQLAlchemyError, TimeoutError, DBAPIError) as e:
         session.rollback()
         raise RuntimeError(f"Database error: {e}") from e
@@ -142,20 +142,20 @@ def create(session: Session, new_yt_channel: YTChannelCreate) -> YTChannelPublic
         session.rollback()
         raise RuntimeError(f"Unexpected error: {e}") from e
 
-def update(session: Session, yt_channel_id: int, yt_channel_in: YTChannelUpdate) -> YTChannelPublic:
+def update(session: Session, yt_video_id: int, yt_video_in: YTVideoUpdate) -> YTVideoPublic:
     """
-    Update an existing YouTube channel entry.
+    Update an existing YouTube video entry.
 
     Args:
         session (Session): SQLAlchemy session for database operations.
-        yt_channel_id (int): The ID of the YouTube channel entry to update.
-        yt_channel_in (YTChannelUpdate): Partial data for updating the YouTube channel entry.
+        yt_video_id (int): The ID of the YouTube video entry to update.
+        yt_video_in (YTVideoUpdate): Partial data for updating the YouTube video entry.
 
     Returns:
-        YTChannelPublic: The updated YouTube channel entry serialized for public exposure.
+        YTVideoPublic: The updated YouTube video entry serialized for public exposure.
 
     Raises:
-        ResourceNotFoundError: If the YouTube channel entry is not found.
+        ResourceNotFoundError: If the YouTube video entry is not found.
         RuntimeError: If a database/unexpected error occurs.
         ValueError: If a data validation error occurs.
     """
@@ -163,23 +163,23 @@ def update(session: Session, yt_channel_id: int, yt_channel_in: YTChannelUpdate)
     try:
         # Retrieve the record to update from the database
         # If it does not exist, it will throw an error
-        yt_channel_db: YTChannel = session.get(YTChannel, yt_channel_id) # type: ignore[arg-type]
-        if not yt_channel_db:
-            raise ResourceNotFoundError(f"YouTube channel with ID {yt_channel_id} not found")
+        yt_video_db: YTVideo = session.get(YTVideo, yt_video_id) # type: ignore[arg-type]
+        if not yt_video_db:
+            raise ResourceNotFoundError(f"YouTube video with ID {yt_video_id} not found")
 
         # Retrieve the input data to update the necessary fields
-        yt_channel_data: dict[str, Any] = yt_channel_in.model_dump(exclude_unset=True)
+        yt_video_data: dict[str, Any] = yt_video_in.model_dump(exclude_unset=True)
 
         # Update the record with the new data
-        yt_channel_db.sqlmodel_update(yt_channel_data) # type: ignore[arg-type]
+        yt_video_db.sqlmodel_update(yt_video_data) # type: ignore[arg-type]
 
         # Save the changes to the database
         session.commit()
 
         # Retrieve the updated record from the database
-        session.refresh(yt_channel_db)
+        session.refresh(yt_video_db)
 
-        return YTChannelPublic.model_validate(yt_channel_db)
+        return YTVideoPublic.model_validate(yt_video_db)
     except ResourceNotFoundError as e:
         raise ResourceNotFoundError(e)
     except (OperationalError, StatementError, SQLAlchemyError, TimeoutError, DBAPIError) as e:
@@ -192,28 +192,28 @@ def update(session: Session, yt_channel_id: int, yt_channel_in: YTChannelUpdate)
         session.rollback()
         raise RuntimeError(f"Unexpected error: {e}") from e
 
-def delete(session: Session, yt_channel_id: int) -> None:
+def delete(session: Session, yt_video_id: int) -> None:
     """
-    Delete a YouTube channel entry from the database.
+    Delete a YouTube video entry from the database.
 
     Args:
         session (Session): SQLAlchemy session for database operations.
-        yt_channel_id (int): The ID of the YouTube channel entry to delete.
+        yt_video_id (int): The ID of the YouTube video entry to delete.
 
     Raises:
-        ResourceNotFoundError: If the YouTube channel entry is not found.
+        ResourceNotFoundError: If the YouTube video entry is not found.
         RuntimeError: If a database/unexpected error occurs.
     """
 
     try:
         # Retrieve the record to update from the database
         # If it does not exist, it will throw an error
-        yt_channel: YTChannel = session.get(YTChannel, yt_channel_id) # type: ignore[arg-type]
-        if not yt_channel:
-            raise ResourceNotFoundError(f"YTChannel with ID {yt_channel_id} not found")
+        yt_video: YTVideo = session.get(YTVideo, yt_video_id) # type: ignore[arg-type]
+        if not yt_video:
+            raise ResourceNotFoundError(f"YTVideo with ID {yt_video_id} not found")
 
         # Delete the record
-        session.delete(yt_channel)
+        session.delete(yt_video)
 
         # Save the changes to the database
         session.commit()
@@ -226,13 +226,13 @@ def delete(session: Session, yt_channel_id: int) -> None:
         session.rollback()
         raise RuntimeError(f"Unexpected error: {e}") from e
 
-def set_yt_channel_detail_level(query: Select, view: YTChannelView) -> Select:
+def set_yt_video_detail_level(query: Select, view: YTVideoView) -> Select:
     """
     Add SQLAlchemy relationship loading options to a query based on the requested detail level.
 
     Args:
         query (Select): The SQLAlchemy Select query to modify.
-        view (YTChannelView): The desired detail level for YouTube channel visualization entries.
+        view (YTVideoView): The desired detail level for YouTube video visualization entries.
 
     Returns:
         Select: The updated query with the appropriate loading options applied.
@@ -240,35 +240,39 @@ def set_yt_channel_detail_level(query: Select, view: YTChannelView) -> Select:
 
     options_list: list[LoaderOption] = []
 
-    if view in (YTChannelView.WITH_VIDEOS, YTChannelView.FULL):
-        options_list.append(selectinload(YTChannel.videos)) # type: ignore[arg-type]
-    if view in (YTChannelView.WITH_PLAYLISTS, YTChannelView.FULL):
-        options_list.append(selectinload(YTChannel.playlists))  # type: ignore[arg-type]
+    if view in (YTVideoView.WITH_VISUALIZATIONS, YTVideoView.FULL):
+        options_list.append(selectinload(YTVideo.visualizations)) # type: ignore[arg-type]
+    if view in (YTVideoView.WITH_PLAYLISTS, YTVideoView.FULL):
+        options_list.append(selectinload(YTVideo.playlists))  # type: ignore[arg-type]
+    if view in (YTVideoView.WITH_CHANNEL, YTVideoView.FULL):
+        options_list.append(selectinload(YTVideo.channel))  # type: ignore[arg-type]
 
     return query.options(*options_list) if options_list else query
 
-def set_yt_channel_response_model(yt_channel: YTChannel, view: YTChannelView) -> YTChannelResponseItem:
+def set_yt_video_response_model(yt_video: YTVideo, view: YTVideoView) -> YTVideoResponseItem:
     """
-    Serialize a single YTChannel instance into the appropriate response model based on the requested view.
+    Serialize a single YTVideo instance into the appropriate response model based on the requested view.
 
     Args:
-        yt_channel (YTChannel): The YTChannel instance to serialize.
-        view (YTChannelView): The desired view for serialization.
+        yt_video (YTVideo): The YTVideo instance to serialize.
+        view (YTVideoView): The desired view for serialization.
 
     Returns:
-        YTChannelPublic: The serialized YouTube channel visualization instance according to the specified view.
+        YTVideoPublic: The serialized YouTube video visualization instance according to the specified view.
 
     Raises:
         ValueError: If an invalid view type is provided.
     """
     match view:
-        case YTChannelView.BASIC:
-            return YTChannelPublic.model_validate(yt_channel)
-        case YTChannelView.WITH_VIDEOS:
-            return YTChannelPublicWithVideos.model_validate(yt_channel)
-        case YTChannelView.WITH_PLAYLISTS:
-            return YTChannelPublicWithPlaylists.model_validate(yt_channel)
-        case YTChannelView.FULL:
-            return YTChannelFull.model_validate(yt_channel)
+        case YTVideoView.BASIC:
+            return YTVideoPublic.model_validate(yt_video)
+        case YTVideoView.WITH_VISUALIZATIONS:
+            return YTVideoPublicWithVisualizations.model_validate(yt_video)
+        case YTVideoView.WITH_PLAYLISTS:
+            return YTVideoPublicWithPlaylists.model_validate(yt_video)
+        case YTVideoView.WITH_CHANNEL:
+            return YTVideoPublicWithChannel.model_validate(yt_video)
+        case YTVideoView.FULL:
+            return YTVideoFull.model_validate(yt_video)
         case _:
             raise ValueError(f"Invalid view type: {view}")

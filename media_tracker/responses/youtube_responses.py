@@ -20,3 +20,24 @@ YTChannelResponseItem: TypeAlias = Union[
     YTChannelPublicWithPlaylists,
     YTChannelFull
 ]
+
+YTVideoPublic.model_rebuild()
+YTVideoPublicWithVisualizations.model_rebuild()
+YTVideoPublicWithPlaylists.model_rebuild()
+YTVideoPublicWithChannel.model_rebuild()
+YTVideoFull.model_rebuild()
+
+YTVideoResponse: TypeAlias = Union[
+    list[YTVideoPublic],
+    list[YTVideoPublicWithVisualizations],
+    list[YTVideoPublicWithPlaylists],
+    list[YTVideoPublicWithChannel],
+    list[YTVideoFull]
+]
+
+YTVideoResponseItem: TypeAlias = Union[
+    YTVideoPublic,
+    YTVideoPublicWithVisualizations,
+    YTVideoPublicWithPlaylists,
+    YTVideoFull
+]
