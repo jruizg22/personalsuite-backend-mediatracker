@@ -289,6 +289,10 @@ class YTVideoPublicWithPlaylists(YTVideoPublic):
     """Model for exposing YouTube video with its playlists publicly."""
     playlists: list[YTPlaylistPublic] = []
 
+class YTVideoVisualizationPublicWithVideo(YTVideoVisualizationPublic):
+    """Model for exposing YouTube video visualization with its video."""
+    video: YTVideoPublic
+
 class YTVideoFull(YTVideoPublic):
     """Model for exposing YouTube video with its channel, visualizations, and playlists publicly."""
     channel: YTChannelPublic
