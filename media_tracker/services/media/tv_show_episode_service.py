@@ -22,7 +22,7 @@ def get_all(
         view: TVShowEpisodeView = TVShowEpisodeView.BASIC
 ) -> TVShowEpisodeResponse:
     """
-    Retrieve a list of TV show episode entries from the database with optional filtering by media type and detail level.
+    Retrieve a list of TV show episode entries from the database with optional filtering by detail level.
 
     Args:
         session (Session): SQLAlchemy session for database operations.

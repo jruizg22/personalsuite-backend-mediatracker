@@ -21,7 +21,7 @@ def get_all(
         view: YTChannelView = YTChannelView.BASIC
 ) -> YTChannelResponse:
     """
-    Retrieve a list of YouTube channel entries from the database with optional filtering by YouTube channel type and detail level.
+    Retrieve a list of YouTube channel entries from the database with optional filtering by detail level.
 
     Args:
         session (Session): SQLAlchemy session for database operations.

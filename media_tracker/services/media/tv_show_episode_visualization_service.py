@@ -22,7 +22,7 @@ def get_all(
         view: TVShowEpisodeVisualizationView = TVShowEpisodeVisualizationView.BASIC
 ) -> TVShowEpisodeVisualizationResponse:
     """
-    Retrieve a list of TV show episode visualization entries from the database with optional filtering by media type and detail level.
+    Retrieve a list of TV show episode visualization entries from the database with optional filtering by detail level.
 
     Args:
         session (Session): SQLAlchemy session for database operations.

@@ -262,7 +262,36 @@ class YTPlaylistVideo(YTPlaylistVideoBase, table=True):
     playlist: YTPlaylist = Relationship(back_populates="videos")
     video: YTVideo = Relationship(back_populates="playlists")
 
+class YTPlaylistVideoCreate(YTPlaylistVideoBase):
+    """Model for creating a new YTPlaylistVideo entry."""
+    pass
+
+class YTPlaylistVideoPublic(YTPlaylistVideoBase):
+    """
+    Model for exposing YouTube playlist video publicly.
+
+    Inherits from YTPlaylistVideoBase and adds:
+        id (str): YouTube playlist video ID.
+    """
+    id: str
+
+class YTPlaylistVideoUpdate(SQLModel):
+    """Model for updating a YouTube playlist video; all fields optional."""
+    playlist_id: str | None = None
+    video_id: str | None = None
+    position: int | None = None
+
 # --- YouTube model combinations ---
+
+class YTVideoPlaylistDetailed(SQLModel):
+    """Model for exposing YouTube playlist with its channel publicly, with their position."""
+    playlist: YTPlaylistPublic
+    position: int | None = None
+
+class YTPlaylistVideoDetailed(SQLModel):
+    """Video inside a playlist, with its position."""
+    video: YTVideoPublic
+    position: int | None = None
 
 class YTChannelPublicWithVideos(YTChannelPublic):
     """Model for exposing YouTube channel with its videos publicly."""
@@ -287,7 +316,7 @@ class YTVideoPublicWithVisualizations(YTVideoPublic):
 
 class YTVideoPublicWithPlaylists(YTVideoPublic):
     """Model for exposing YouTube video with its playlists publicly."""
-    playlists: list[YTPlaylistPublic] = []
+    playlists: list[YTVideoPlaylistDetailed] = []
 
 class YTVideoVisualizationPublicWithVideo(YTVideoVisualizationPublic):
     """Model for exposing YouTube video visualization with its video."""
@@ -297,7 +326,7 @@ class YTVideoFull(YTVideoPublic):
     """Model for exposing YouTube video with its channel, visualizations, and playlists publicly."""
     channel: YTChannelPublic
     visualizations: list[YTVideoVisualizationPublic] = []
-    playlists: list[YTPlaylistPublic] = []
+    playlists: list[YTVideoPlaylistDetailed] = []
 
 class YTPlaylistPublicWithChannel(YTPlaylistPublic):
     """Model for exposing YouTube playlist with its channel publicly."""
@@ -305,9 +334,9 @@ class YTPlaylistPublicWithChannel(YTPlaylistPublic):
 
 class YTPlaylistPublicWithVideos(YTPlaylistPublic):
     """Model for exposing YouTube playlist with its videos publicly."""
-    videos: list[YTVideoPublic] = []
+    videos: list[YTPlaylistVideoDetailed] = []
 
 class YTPlaylistFull(YTPlaylistPublic):
     """Model for exposing YouTube playlist with its channel and videos publicly."""
     channel: YTChannelPublic
-    videos: list[YTVideoPublic] = []
+    videos: list[YTPlaylistVideoDetailed] = []

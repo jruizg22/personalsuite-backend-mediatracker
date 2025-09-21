@@ -54,3 +54,22 @@ YTVideoVisualizationResponseItem: TypeAlias = Union[
     YTVideoVisualizationPublic,
     YTVideoVisualizationPublicWithVideo
 ]
+
+YTPlaylistPublic.model_rebuild()
+YTPlaylistPublicWithVideos.model_rebuild()
+YTPlaylistPublicWithChannel.model_rebuild()
+YTPlaylistFull.model_rebuild()
+
+YTPlaylistResponse: TypeAlias = Union[
+    list[YTPlaylistPublic],
+    list[YTPlaylistPublicWithVideos],
+    list[YTPlaylistPublicWithChannel],
+    list[YTPlaylistFull]
+]
+
+YTPlaylistResponseItem: TypeAlias = Union[
+    YTPlaylistPublic,
+    YTPlaylistPublicWithVideos,
+    YTPlaylistPublicWithChannel,
+    YTPlaylistFull
+]

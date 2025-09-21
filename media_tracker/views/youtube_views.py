@@ -16,3 +16,9 @@ class YTVideoView(str, Enum):
 class YTVideoVisualizationView(str, Enum):
     BASIC = 'basic'
     WITH_VIDEO = 'with_video'
+
+class YTPlaylistView(str, Enum):
+    BASIC = 'basic'
+    WITH_VIDEOS = 'with_videos'
+    WITH_CHANNEL = 'with_channel'
+    FULL = 'full'

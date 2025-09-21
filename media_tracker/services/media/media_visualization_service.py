@@ -22,7 +22,7 @@ def get_all(
         view: MediaVisualizationView = MediaVisualizationView.BASIC
 ) -> MediaVisualizationResponse:
     """
-    Retrieve a list of media visualization entries from the database with optional filtering by media type and detail level.
+    Retrieve a list of media visualization entries from the database with optional filtering detail level.
 
     Args:
         session (Session): SQLAlchemy session for database operations.

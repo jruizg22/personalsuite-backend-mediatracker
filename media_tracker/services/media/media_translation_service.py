@@ -22,7 +22,7 @@ def get_all(
         view: MediaTranslationView = MediaTranslationView.BASIC
 ) -> MediaTranslationResponse:
     """
-    Retrieve a list of media translation entries from the database with optional filtering by media type and detail level.
+    Retrieve a list of media translation entries from the database with optional filtering by detail level.
 
     Args:
         session (Session): SQLAlchemy session for database operations.

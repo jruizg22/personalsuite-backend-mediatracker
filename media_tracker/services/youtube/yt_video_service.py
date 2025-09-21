@@ -5,11 +5,13 @@ from core.exceptions import ResourceNotFoundError  # type: ignore
 from pydantic import ValidationError
 from sqlalchemy import Select
 from sqlalchemy.exc import OperationalError, StatementError, SQLAlchemyError, TimeoutError, DBAPIError
+from sqlalchemy.orm import selectinload
 from sqlalchemy.orm.interfaces import LoaderOption
 from sqlmodel import Session, select
 
 from media_tracker.models.yt import YTVideo, YTVideoPublic, YTVideoPublicWithVisualizations, YTVideoPublicWithPlaylists, \
-    YTVideoPublicWithChannel, YTVideoFull, YTVideoCreate, YTVideoUpdate
+    YTVideoPublicWithChannel, YTVideoFull, YTVideoCreate, YTVideoUpdate, YTPlaylistVideo, YTPlaylistPublic, \
+    YTVideoVisualizationPublic, YTChannelPublic, YTVideoPlaylistDetailed, YTPlaylistVideoDetailed
 from media_tracker.responses.youtube_responses import YTVideoResponse, YTVideoResponseItem
 from media_tracker.views.youtube_views import YTVideoView
 
@@ -21,7 +23,7 @@ def get_all(
         view: YTVideoView = YTVideoView.BASIC
 ) -> YTVideoResponse:
     """
-    Retrieve a list of YouTube video entries from the database with optional filtering by YouTube video type and detail level.
+    Retrieve a list of YouTube video entries from the database with optional filtering by detail level.
 
     Args:
         session (Session): SQLAlchemy session for database operations.
@@ -243,7 +245,9 @@ def set_yt_video_detail_level(query: Select, view: YTVideoView) -> Select:
     if view in (YTVideoView.WITH_VISUALIZATIONS, YTVideoView.FULL):
         options_list.append(selectinload(YTVideo.visualizations)) # type: ignore[arg-type]
     if view in (YTVideoView.WITH_PLAYLISTS, YTVideoView.FULL):
-        options_list.append(selectinload(YTVideo.playlists))  # type: ignore[arg-type]
+        options_list.append(
+            selectinload(YTVideo.playlists).selectinload(YTPlaylistVideo.playlist) # type: ignore[arg-type]
+        )
     if view in (YTVideoView.WITH_CHANNEL, YTVideoView.FULL):
         options_list.append(selectinload(YTVideo.channel))  # type: ignore[arg-type]
 
@@ -267,12 +271,39 @@ def set_yt_video_response_model(yt_video: YTVideo, view: YTVideoView) -> YTVideo
         case YTVideoView.BASIC:
             return YTVideoPublic.model_validate(yt_video)
         case YTVideoView.WITH_VISUALIZATIONS:
-            return YTVideoPublicWithVisualizations.model_validate(yt_video)
+            return YTVideoPublicWithVisualizations(
+                **yt_video.model_dump(),
+                visualizations=[
+                    YTVideoPublic.model_validate(visualization) for visualization in yt_video.visualizations
+                ]
+            )
         case YTVideoView.WITH_PLAYLISTS:
-            return YTVideoPublicWithPlaylists.model_validate(yt_video)
+            return YTVideoPublicWithPlaylists(
+                **yt_video.model_dump(),
+                playlists=[
+                    YTPlaylistVideoDetailed(
+                        playlist=YTPlaylistPublic.model_validate(assoc.playlist),
+                        position=assoc.position
+                    )
+                    for assoc in yt_video.playlists
+                ]
+            )
         case YTVideoView.WITH_CHANNEL:
             return YTVideoPublicWithChannel.model_validate(yt_video)
         case YTVideoView.FULL:
-            return YTVideoFull.model_validate(yt_video)
+            return YTVideoFull(
+                **yt_video.model_dump(),
+                visualizations=[
+                    YTVideoVisualizationPublic.model_validate(visualization) for visualization in yt_video.visualizations
+                ],
+                playlists=[
+                    YTVideoPlaylistDetailed(
+                        playlist=YTPlaylistPublic.model_validate(assoc.playlist),
+                        position=assoc.position,
+                    )
+                    for assoc in yt_video.playlists
+                ],
+                channel=YTChannelPublic.model_validate(yt_video.channel)
+            )
         case _:
             raise ValueError(f"Invalid view type: {view}")
