@@ -8,7 +8,7 @@ from sqlmodel import Session
 from media_tracker.responses.media_responses import MediaVisualizationResponse, MediaVisualizationResponseItem
 from media_tracker.views.media_views import MediaVisualizationView
 from media_tracker.models.media import MediaVisualizationPublic, MediaVisualizationCreate, MediaVisualizationUpdate
-from media_tracker.services import media_visualization_service
+from media_tracker.services.media import media_visualization_service
 
 
 def get_router(get_session: Callable[[], Generator[Session, Any, None]]) -> APIRouter:
