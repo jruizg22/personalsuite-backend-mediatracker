@@ -47,7 +47,7 @@ def get_router(get_session: Callable[[], Generator[Session, Any, None]]) -> APIR
 
     @router.get("/{yt_video_id}", response_model=YTVideoResponseItem, status_code=200)
     def get_yt_video_by_id(
-            yt_video_id: int,
+            yt_video_id: str,
             session: Session = Depends(get_session),
             view: YTVideoView = YTVideoView.BASIC
     ) -> YTVideoResponseItem:
@@ -55,7 +55,7 @@ def get_router(get_session: Callable[[], Generator[Session, Any, None]]) -> APIR
         Retrieve a single YouTube video item by its ID.
 
         Args:
-            yt_video_id (int): The unique identifier of the YouTube video to retrieve.
+            yt_video_id (str): The unique identifier of the YouTube video to retrieve.
             session (Session): Database session dependency.
             view (YTVideoView, optional): Level of detail for the returned YouTube video.
                 Defaults to YTVideoView.BASIC.
@@ -95,12 +95,12 @@ def get_router(get_session: Callable[[], Generator[Session, Any, None]]) -> APIR
             raise HTTPException(status_code=500, detail=(f"Error creating YouTube video: {e}"))
 
     @router.put("/{yt_video_id}", response_model=YTVideoPublic, status_code=200)
-    def update_yt_video(yt_video_id: int, yt_video_in: YTVideoUpdate, session: Session = Depends(get_session)) -> YTVideoPublic:
+    def update_yt_video(yt_video_id: str, yt_video_in: YTVideoUpdate, session: Session = Depends(get_session)) -> YTVideoPublic:
         """
         Update an existing YouTube video entry by its ID.
 
         Args:
-            yt_video_id (int): The ID of the YouTube video to update.
+            yt_video_id (str): The ID of the YouTube video to update.
             yt_video_in (YTVideoUpdate): Data to update on the YouTube video.
             session (Session): Database session dependency.
 
@@ -119,12 +119,12 @@ def get_router(get_session: Callable[[], Generator[Session, Any, None]]) -> APIR
             raise HTTPException(status_code=500, detail=(f"Error updating YouTube video with ID {yt_video_id}: {e}"))
 
     @router.delete("/{yt_video_id}", status_code=204)
-    def delete_yt_video(yt_video_id: int, session: Session = Depends(get_session)) -> None:
+    def delete_yt_video(yt_video_id: str, session: Session = Depends(get_session)) -> None:
         """
         Delete a YouTube video entry by its ID.
 
         Args:
-            yt_video_id (int): The ID of the YouTube video to delete.
+            yt_video_id (str): The ID of the YouTube video to delete.
             session (Session): Database session dependency.
 
         Returns:

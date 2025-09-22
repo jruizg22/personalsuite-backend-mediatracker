@@ -59,7 +59,7 @@ def get_all(
     except Exception as e:
         raise RuntimeError(f"Unexpected error: {e}") from e
 
-def get_by_id(session: Session, yt_channel_id: int, view: YTChannelView = YTChannelView.BASIC) -> YTChannelResponseItem:
+def get_by_id(session: Session, yt_channel_id: str, view: YTChannelView = YTChannelView.BASIC) -> YTChannelResponseItem:
     """
     Retrieve a single YouTube channel entry by its ID with optional detail level.
 
@@ -142,13 +142,13 @@ def create(session: Session, new_yt_channel: YTChannelCreate) -> YTChannelPublic
         session.rollback()
         raise RuntimeError(f"Unexpected error: {e}") from e
 
-def update(session: Session, yt_channel_id: int, yt_channel_in: YTChannelUpdate) -> YTChannelPublic:
+def update(session: Session, yt_channel_id: str, yt_channel_in: YTChannelUpdate) -> YTChannelPublic:
     """
     Update an existing YouTube channel entry.
 
     Args:
         session (Session): SQLAlchemy session for database operations.
-        yt_channel_id (int): The ID of the YouTube channel entry to update.
+        yt_channel_id (str): The ID of the YouTube channel entry to update.
         yt_channel_in (YTChannelUpdate): Partial data for updating the YouTube channel entry.
 
     Returns:
@@ -192,13 +192,13 @@ def update(session: Session, yt_channel_id: int, yt_channel_in: YTChannelUpdate)
         session.rollback()
         raise RuntimeError(f"Unexpected error: {e}") from e
 
-def delete(session: Session, yt_channel_id: int) -> None:
+def delete(session: Session, yt_channel_id: str) -> None:
     """
     Delete a YouTube channel entry from the database.
 
     Args:
         session (Session): SQLAlchemy session for database operations.
-        yt_channel_id (int): The ID of the YouTube channel entry to delete.
+        yt_channel_id (str): The ID of the YouTube channel entry to delete.
 
     Raises:
         ResourceNotFoundError: If the YouTube channel entry is not found.

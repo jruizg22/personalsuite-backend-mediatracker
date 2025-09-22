@@ -47,7 +47,7 @@ def get_router(get_session: Callable[[], Generator[Session, Any, None]]) -> APIR
 
     @router.get("/{yt_playlist_id}", response_model=YTPlaylistResponseItem, status_code=200)
     def get_yt_playlist_by_id(
-            yt_playlist_id: int,
+            yt_playlist_id: str,
             session: Session = Depends(get_session),
             view: YTPlaylistView = YTPlaylistView.BASIC
     ) -> YTPlaylistResponseItem:
@@ -55,7 +55,7 @@ def get_router(get_session: Callable[[], Generator[Session, Any, None]]) -> APIR
         Retrieve a single YouTube playlist item by its ID.
 
         Args:
-            yt_playlist_id (int): The unique identifier of the YouTube playlist to retrieve.
+            yt_playlist_id (str): The unique identifier of the YouTube playlist to retrieve.
             session (Session): Database session dependency.
             view (YTPlaylistView, optional): Level of detail for the returned YouTube playlist.
                 Defaults to YTPlaylistView.BASIC.
@@ -95,12 +95,12 @@ def get_router(get_session: Callable[[], Generator[Session, Any, None]]) -> APIR
             raise HTTPException(status_code=500, detail=(f"Error creating YouTube playlist: {e}"))
 
     @router.put("/{yt_playlist_id}", response_model=YTPlaylistPublic, status_code=200)
-    def update_yt_playlist(yt_playlist_id: int, yt_playlist_in: YTPlaylistUpdate, session: Session = Depends(get_session)) -> YTPlaylistPublic:
+    def update_yt_playlist(yt_playlist_id: str, yt_playlist_in: YTPlaylistUpdate, session: Session = Depends(get_session)) -> YTPlaylistPublic:
         """
         Update an existing YouTube playlist entry by its ID.
 
         Args:
-            yt_playlist_id (int): The ID of the YouTube playlist to update.
+            yt_playlist_id (str): The ID of the YouTube playlist to update.
             yt_playlist_in (YTPlaylistUpdate): Data to update on the YouTube playlist.
             session (Session): Database session dependency.
 
@@ -119,12 +119,12 @@ def get_router(get_session: Callable[[], Generator[Session, Any, None]]) -> APIR
             raise HTTPException(status_code=500, detail=(f"Error updating YouTube playlist with ID {yt_playlist_id}: {e}"))
 
     @router.delete("/{yt_playlist_id}", status_code=204)
-    def delete_yt_playlist(yt_playlist_id: int, session: Session = Depends(get_session)) -> None:
+    def delete_yt_playlist(yt_playlist_id: str, session: Session = Depends(get_session)) -> None:
         """
         Delete a YouTube playlist entry by its ID.
 
         Args:
-            yt_playlist_id (int): The ID of the YouTube playlist to delete.
+            yt_playlist_id (str): The ID of the YouTube playlist to delete.
             session (Session): Database session dependency.
 
         Returns:

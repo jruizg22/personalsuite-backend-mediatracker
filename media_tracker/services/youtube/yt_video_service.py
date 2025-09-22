@@ -61,13 +61,13 @@ def get_all(
     except Exception as e:
         raise RuntimeError(f"Unexpected error: {e}") from e
 
-def get_by_id(session: Session, yt_video_id: int, view: YTVideoView = YTVideoView.BASIC) -> YTVideoResponseItem:
+def get_by_id(session: Session, yt_video_id: str, view: YTVideoView = YTVideoView.BASIC) -> YTVideoResponseItem:
     """
     Retrieve a single YouTube video entry by its ID with optional detail level.
 
     Args:
         session (Session): SQLAlchemy session for database operations.
-        yt_video_id (int): The ID of the YouTube video entry to retrieve.
+        yt_video_id (str): The ID of the YouTube video entry to retrieve.
         view (YTVideoView): Determines the level of detail for the YouTube video entry.
 
     Returns:
@@ -144,13 +144,13 @@ def create(session: Session, new_yt_video: YTVideoCreate) -> YTVideoPublic:
         session.rollback()
         raise RuntimeError(f"Unexpected error: {e}") from e
 
-def update(session: Session, yt_video_id: int, yt_video_in: YTVideoUpdate) -> YTVideoPublic:
+def update(session: Session, yt_video_id: str, yt_video_in: YTVideoUpdate) -> YTVideoPublic:
     """
     Update an existing YouTube video entry.
 
     Args:
         session (Session): SQLAlchemy session for database operations.
-        yt_video_id (int): The ID of the YouTube video entry to update.
+        yt_video_id (str): The ID of the YouTube video entry to update.
         yt_video_in (YTVideoUpdate): Partial data for updating the YouTube video entry.
 
     Returns:
@@ -194,13 +194,13 @@ def update(session: Session, yt_video_id: int, yt_video_in: YTVideoUpdate) -> YT
         session.rollback()
         raise RuntimeError(f"Unexpected error: {e}") from e
 
-def delete(session: Session, yt_video_id: int) -> None:
+def delete(session: Session, yt_video_id: str) -> None:
     """
     Delete a YouTube video entry from the database.
 
     Args:
         session (Session): SQLAlchemy session for database operations.
-        yt_video_id (int): The ID of the YouTube video entry to delete.
+        yt_video_id (str): The ID of the YouTube video entry to delete.
 
     Raises:
         ResourceNotFoundError: If the YouTube video entry is not found.

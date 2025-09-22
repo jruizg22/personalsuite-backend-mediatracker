@@ -47,7 +47,7 @@ def get_router(get_session: Callable[[], Generator[Session, Any, None]]) -> APIR
 
     @router.get("/{yt_channel_id}", response_model=YTChannelResponseItem, status_code=200)
     def get_yt_channel_by_id(
-            yt_channel_id: int,
+            yt_channel_id: str,
             session: Session = Depends(get_session),
             view: YTChannelView = YTChannelView.BASIC
     ) -> YTChannelResponseItem:
@@ -55,7 +55,7 @@ def get_router(get_session: Callable[[], Generator[Session, Any, None]]) -> APIR
         Retrieve a single YouTube channel item by its ID.
 
         Args:
-            yt_channel_id (int): The unique identifier of the YouTube channel to retrieve.
+            yt_channel_id (str): The unique identifier of the YouTube channel to retrieve.
             session (Session): Database session dependency.
             view (YTChannelView, optional): Level of detail for the returned YouTube channel.
                 Defaults to YTChannelView.BASIC.
@@ -95,12 +95,12 @@ def get_router(get_session: Callable[[], Generator[Session, Any, None]]) -> APIR
             raise HTTPException(status_code=500, detail=(f"Error creating YouTube channel: {e}"))
 
     @router.put("/{yt_channel_id}", response_model=YTChannelPublic, status_code=200)
-    def update_yt_channel(yt_channel_id: int, yt_channel_in: YTChannelUpdate, session: Session = Depends(get_session)) -> YTChannelPublic:
+    def update_yt_channel(yt_channel_id: str, yt_channel_in: YTChannelUpdate, session: Session = Depends(get_session)) -> YTChannelPublic:
         """
         Update an existing YouTube channel entry by its ID.
 
         Args:
-            yt_channel_id (int): The ID of the YouTube channel to update.
+            yt_channel_id (str): The ID of the YouTube channel to update.
             yt_channel_in (YTChannelUpdate): Data to update on the YouTube channel.
             session (Session): Database session dependency.
 
@@ -119,12 +119,12 @@ def get_router(get_session: Callable[[], Generator[Session, Any, None]]) -> APIR
             raise HTTPException(status_code=500, detail=(f"Error updating YouTube channel with ID {yt_channel_id}: {e}"))
 
     @router.delete("/{yt_channel_id}", status_code=204)
-    def delete_yt_channel(yt_channel_id: int, session: Session = Depends(get_session)) -> None:
+    def delete_yt_channel(yt_channel_id: str, session: Session = Depends(get_session)) -> None:
         """
         Delete a YouTube channel entry by its ID.
 
         Args:
-            yt_channel_id (int): The ID of the YouTube channel to delete.
+            yt_channel_id (str): The ID of the YouTube channel to delete.
             session (Session): Database session dependency.
 
         Returns:

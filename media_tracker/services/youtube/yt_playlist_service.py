@@ -61,13 +61,13 @@ def get_all(
     except Exception as e:
         raise RuntimeError(f"Unexpected error: {e}") from e
 
-def get_by_id(session: Session, yt_playlist_id: int, view: YTPlaylistView = YTPlaylistView.BASIC) -> YTPlaylistResponseItem:
+def get_by_id(session: Session, yt_playlist_id: str, view: YTPlaylistView = YTPlaylistView.BASIC) -> YTPlaylistResponseItem:
     """
     Retrieve a single YouTube playlist entry by its ID with optional detail level.
 
     Args:
         session (Session): SQLAlchemy session for database operations.
-        yt_playlist_id (int): The ID of the YouTube playlist entry to retrieve.
+        yt_playlist_id (str): The ID of the YouTube playlist entry to retrieve.
         view (YTPlaylistView): Determines the level of detail for the YouTube playlist entry.
 
     Returns:
@@ -144,13 +144,13 @@ def create(session: Session, new_yt_playlist: YTPlaylistCreate) -> YTPlaylistPub
         session.rollback()
         raise RuntimeError(f"Unexpected error: {e}") from e
 
-def update(session: Session, yt_playlist_id: int, yt_playlist_in: YTPlaylistUpdate) -> YTPlaylistPublic:
+def update(session: Session, yt_playlist_id: str, yt_playlist_in: YTPlaylistUpdate) -> YTPlaylistPublic:
     """
     Update an existing YouTube playlist entry.
 
     Args:
         session (Session): SQLAlchemy session for database operations.
-        yt_playlist_id (int): The ID of the YouTube playlist entry to update.
+        yt_playlist_id (str): The ID of the YouTube playlist entry to update.
         yt_playlist_in (YTPlaylistUpdate): Partial data for updating the YouTube playlist entry.
 
     Returns:
@@ -194,13 +194,13 @@ def update(session: Session, yt_playlist_id: int, yt_playlist_in: YTPlaylistUpda
         session.rollback()
         raise RuntimeError(f"Unexpected error: {e}") from e
 
-def delete(session: Session, yt_playlist_id: int) -> None:
+def delete(session: Session, yt_playlist_id: str) -> None:
     """
     Delete a YouTube playlist entry from the database.
 
     Args:
         session (Session): SQLAlchemy session for database operations.
-        yt_playlist_id (int): The ID of the YouTube playlist entry to delete.
+        yt_playlist_id (str): The ID of the YouTube playlist entry to delete.
 
     Raises:
         ResourceNotFoundError: If the YouTube playlist entry is not found.
