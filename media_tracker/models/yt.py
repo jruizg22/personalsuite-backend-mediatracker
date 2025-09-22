@@ -46,7 +46,7 @@ class YTChannelCreate(YTChannelBase):
     Inherits from YTChannelBase and adds:
         id (str): YouTube channel ID.
     """
-    int: str
+    id: str
 
 class YTChannelPublic(YTChannelBase):
     """
