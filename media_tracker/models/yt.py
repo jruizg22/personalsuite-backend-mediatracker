@@ -249,7 +249,7 @@ class YTPlaylistVideo(YTPlaylistVideoBase, table=True):
     Unique constraint on (playlist_id, position) to ensure no duplicate positions in a playlist.
 
     Inherits from YTPlaylistVideoBase and adds:
-        id (int | None): Primary key.
+        id (int): Primary key.
         playlist (YTPlaylist): Relationship back to the playlist.
         video (YTVideo): Relationship back to the video.
     """
@@ -258,7 +258,7 @@ class YTPlaylistVideo(YTPlaylistVideoBase, table=True):
         UniqueConstraint("playlist_id", "position", name="uq_playlist_position"),
     )
 
-    id: int | None = Field(default=None, primary_key=True)
+    id: int = Field(default=None, primary_key=True)
     playlist: YTPlaylist = Relationship(back_populates="videos")
     video: YTVideo = Relationship(back_populates="playlists")
 
@@ -271,9 +271,9 @@ class YTPlaylistVideoPublic(YTPlaylistVideoBase):
     Model for exposing YouTube playlist video publicly.
 
     Inherits from YTPlaylistVideoBase and adds:
-        id (str): YouTube playlist video ID.
+        id (int): YouTube playlist video ID.
     """
-    id: str
+    id: int
 
 class YTPlaylistVideoUpdate(SQLModel):
     """Model for updating a YouTube playlist video; all fields optional."""

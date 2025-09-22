@@ -1,0 +1,205 @@
+from typing import Any
+
+# The import will work when the module is installed into the core
+from core.exceptions import ResourceNotFoundError  # type: ignore
+from pydantic import ValidationError
+from sqlalchemy import Select
+from sqlalchemy.exc import OperationalError, StatementError, SQLAlchemyError, TimeoutError, DBAPIError
+from sqlmodel import Session, select
+
+from media_tracker.models.yt import YTPlaylistVideoPublic, YTPlaylistVideoCreate, YTPlaylistVideoUpdate, YTPlaylistVideo
+from media_tracker.responses.youtube_responses import YTPlaylistVideoResponse, YTPlaylistVideoResponseItem
+
+
+def get_all(session: Session, offset: int = 0, limit: int = 0) -> YTPlaylistVideoResponse:
+    """
+    Retrieve a list of YouTube playlist video entries from the database.
+
+    Args:
+        session (Session): SQLAlchemy session for database operations.
+        offset (int): Number of items to skip for pagination.
+        limit (int): Maximum number of items to return. If 0, no limit is applied.
+
+    Returns:
+        YTPlaylistVideoResponse: A list of YouTube playlist video entries serialized according to the specified view.
+
+    Raises:
+        RuntimeError: If a database or unexpected error occurs.
+        ValueError: If a data validation error occurs.
+    """
+
+    try:
+        # Initialize the base query
+        query: Select = select(YTPlaylistVideo)
+
+        # Retrieve all the YouTube playlist video with the configuration set in the previous steps
+        yt_playlist_video_list: list[YTPlaylistVideo] = session.exec(query.offset(offset).limit(limit if limit > 0 else None)).all() # type: ignore[arg-type]
+
+        return [YTPlaylistVideoPublic.model_validate(yt_playlist_video) for yt_playlist_video in yt_playlist_video_list]
+
+    except (OperationalError, StatementError, SQLAlchemyError, TimeoutError, DBAPIError) as e:
+        raise RuntimeError(f"Database error: {e}") from e
+    except (ValidationError, TypeError) as e:
+        raise ValueError(f"Data validation error: {e}") from e
+    except Exception as e:
+        raise RuntimeError(f"Unexpected error: {e}") from e
+
+def get_by_id(session: Session, yt_playlist_video_id: int) -> YTPlaylistVideoResponseItem:
+    """
+    Retrieve a single YouTube playlist video entry by its ID with optional detail level.
+
+    Args:
+        session (Session): SQLAlchemy session for database operations.
+        yt_playlist_video_id (int): The ID of the YouTube playlist video entry to retrieve.
+
+    Returns:
+        YTPlaylistVideoResponseItem: The requested YouTube playlist video entry serialized according to the specified view.
+
+    Raises:
+        ResourceNotFoundError: If the YouTube playlist video entry is not found.
+        RuntimeError: If a database/unexpected error occurs.
+        ValueError: If a data validation error occurs.
+    """
+
+    try:
+        # Initialize the base query, filtering by id
+        query: Select = select(YTPlaylistVideo).where(YTPlaylistVideo.id == yt_playlist_video_id)
+
+        # Retrieve the YouTube playlist video with the configuration set in the previous steps
+        # If it doesn't exist, it will throw an error
+        yt_playlist_video_db: YTPlaylistVideo | None = session.exec(query).first()
+        if not yt_playlist_video_db:
+            raise ResourceNotFoundError(f"YTPlaylistVideo with ID {yt_playlist_video_id} not found")
+
+        return YTPlaylistVideoPublic.model_validate(yt_playlist_video_db)
+    except ResourceNotFoundError as e:
+        raise ResourceNotFoundError(e)
+    except (OperationalError, StatementError, SQLAlchemyError, TimeoutError, DBAPIError) as e:
+        raise RuntimeError(f"Database error: {e}") from e
+    except (ValidationError, TypeError) as e:
+        raise ValueError(f"Data validation error: {e}") from e
+    except Exception as e:
+        raise RuntimeError(f"Unexpected error: {e}") from e
+
+def create(session: Session, new_yt_playlist_video: YTPlaylistVideoCreate) -> YTPlaylistVideoPublic:
+    """
+    Create a new YouTube playlist video entry in the database.
+
+    Args:
+        session (Session): SQLAlchemy session for database operations.
+        new_yt_playlist_video (YTPlaylistVideoCreate): Input data for creating a new YouTube playlist video entry.
+
+    Returns:
+        YTPlaylistVideoPublic: The newly created YouTube playlist video entry serialized for public exposure.
+
+    Raises:
+        RuntimeError: If a database or unexpected error occurs.
+        ValueError: If a data validation error occurs.
+    """
+
+    try:
+        # Create the new database record
+        yt_playlist_video: YTPlaylistVideo = YTPlaylistVideo(**new_yt_playlist_video.model_dump())
+
+        # Add the record to the session
+        session.add(yt_playlist_video)
+
+        # Commit the changes, storing the new record in the database
+        session.commit()
+
+        # Refresh the record model to get the whole record with the id generated by the database
+        session.refresh(yt_playlist_video)
+        return YTPlaylistVideoPublic.model_validate(yt_playlist_video)
+    except (OperationalError, StatementError, SQLAlchemyError, TimeoutError, DBAPIError) as e:
+        session.rollback()
+        raise RuntimeError(f"Database error: {e}") from e
+    except (ValidationError, TypeError) as e:
+        session.rollback()
+        raise ValueError(f"Data validation error: {e}") from e
+    except Exception as e:
+        session.rollback()
+        raise RuntimeError(f"Unexpected error: {e}") from e
+
+def update(session: Session, yt_playlist_video_id: int, yt_playlist_video_in: YTPlaylistVideoUpdate) -> YTPlaylistVideoPublic:
+    """
+    Update an existing YouTube playlist video entry.
+
+    Args:
+        session (Session): SQLAlchemy session for database operations.
+        yt_playlist_video_id (int): The ID of the YouTube playlist video entry to update.
+        yt_playlist_video_in (YTPlaylistVideoUpdate): Partial data for updating the YouTube playlist video entry.
+
+    Returns:
+        YTPlaylistVideoPublic: The updated YouTube playlist video entry serialized for public exposure.
+
+    Raises:
+        ResourceNotFoundError: If the YouTube playlist video entry is not found.
+        RuntimeError: If a database/unexpected error occurs.
+        ValueError: If a data validation error occurs.
+    """
+
+    try:
+        # Retrieve the record to update from the database
+        # If it does not exist, it will throw an error
+        yt_playlist_video_db: YTPlaylistVideo = session.get(YTPlaylistVideo, yt_video_id) # type: ignore[arg-type]
+        if not yt_playlist_video_db:
+            raise ResourceNotFoundError(f"YouTube playlist video with ID {yt_playlist_video_id} not found")
+
+        # Retrieve the input data to update the necessary fields
+        yt_playlist_video_data: dict[str, Any] = yt_playlist_video_in.model_dump(exclude_unset=True)
+
+        # Update the record with the new data
+        yt_playlist_video_db.sqlmodel_update(yt_playlist_video_data) # type: ignore[arg-type]
+
+        # Save the changes to the database
+        session.commit()
+
+        # Retrieve the updated record from the database
+        session.refresh(yt_playlist_video_db)
+
+        return YTPlaylistVideoPublic.model_validate(yt_playlist_video_db)
+    except ResourceNotFoundError as e:
+        raise ResourceNotFoundError(e)
+    except (OperationalError, StatementError, SQLAlchemyError, TimeoutError, DBAPIError) as e:
+        session.rollback()
+        raise RuntimeError(f"Database error: {e}") from e
+    except (ValidationError, TypeError) as e:
+        session.rollback()
+        raise ValueError(f"Data validation error: {e}") from e
+    except Exception as e:
+        session.rollback()
+        raise RuntimeError(f"Unexpected error: {e}") from e
+
+def delete(session: Session, yt_playlist_video_id: int) -> None:
+    """
+    Delete a YouTube playlist video entry from the database.
+
+    Args:
+        session (Session): SQLAlchemy session for database operations.
+        yt_playlist_video_id (int): The ID of the YouTube playlist video entry to delete.
+
+    Raises:
+        ResourceNotFoundError: If the YouTube playlist video entry is not found.
+        RuntimeError: If a database/unexpected error occurs.
+    """
+
+    try:
+        # Retrieve the record to update from the database
+        # If it does not exist, it will throw an error
+        yt_playlist_video: YTPlaylistVideo = session.get(YTPlaylistVideo, yt_playlist_video_id) # type: ignore[arg-type]
+        if not yt_playlist_video:
+            raise ResourceNotFoundError(f"YTPlaylistVideo with ID {yt_playlist_video_id} not found")
+
+        # Delete the record
+        session.delete(yt_playlist_video)
+
+        # Save the changes to the database
+        session.commit()
+    except ResourceNotFoundError as e:
+        raise ResourceNotFoundError(e)
+    except (OperationalError, StatementError, SQLAlchemyError, TimeoutError, DBAPIError) as e:
+        session.rollback()
+        raise RuntimeError(f"Database error: {e}") from e
+    except Exception as e:
+        session.rollback()
+        raise RuntimeError(f"Unexpected error: {e}") from e
