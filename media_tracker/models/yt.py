@@ -182,10 +182,12 @@ class YTPlaylistBase(SQLModel):
     Attributes:
         channel_id (str): Foreign key to YTChannel.id.
         title (str): Playlist title.
+        description (str | None): Playlist description
         url (str): Optional playlist URL.
     """
     channel_id: str = Field(foreign_key="yt_channels.id", max_length=CHANNEL_ID_MAX_LENGTH, index=True)
     title: str = Field(nullable=False, max_length=TITLE_MAX_LENGTH, index=True)
+    description: str | None
     url: str = Field(max_length=LINK_MAX_LENGTH)
 
 class YTPlaylist(YTPlaylistBase, table=True):
@@ -225,6 +227,7 @@ class YTPlaylistUpdate(SQLModel):
     """Model for updating a YouTube playlist; all fields optional."""
     channel_id: str | None = None
     title: str | None = None
+    description: str | None = None
     url: str | None = None
 
 # --- Playlist Video models (association table) ---
