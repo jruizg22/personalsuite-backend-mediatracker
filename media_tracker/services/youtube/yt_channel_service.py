@@ -5,6 +5,7 @@ from core.exceptions import ResourceNotFoundError  # type: ignore
 from pydantic import ValidationError
 from sqlalchemy import Select
 from sqlalchemy.exc import OperationalError, StatementError, SQLAlchemyError, TimeoutError, DBAPIError
+from sqlalchemy.orm import selectinload
 from sqlalchemy.orm.interfaces import LoaderOption
 from sqlmodel import Session, select
 
