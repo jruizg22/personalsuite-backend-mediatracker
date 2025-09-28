@@ -30,6 +30,7 @@ class TVShowEpisodeView(str, Enum):
     WITH_TV_SHOW = 'with_tv_show'
     WITH_TRANSLATIONS = 'with_translations'
     WITH_VISUALIZATIONS = 'with_visualizations'
+    FULL = 'full'
 
 class TVShowEpisodeTranslationView(str, Enum):
     BASIC = 'basic'

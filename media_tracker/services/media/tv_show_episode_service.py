@@ -12,7 +12,8 @@ from sqlmodel import Session, select
 from media_tracker.responses.media_responses import TVShowEpisodeResponse, TVShowEpisodeResponseItem
 from media_tracker.views.media_views import TVShowEpisodeView
 from media_tracker.models.media import TVShowEpisodePublic, TVShowEpisode, \
-    TVShowEpisodeCreate, TVShowEpisodeUpdate, TVShowEpisodePublicWithTVShow
+    TVShowEpisodeCreate, TVShowEpisodeUpdate, TVShowEpisodePublicWithTVShow, TVShowEpisodePublicWithTranslations, \
+    TVShowEpisodePublicWithVisualizations, TVShowEpisodeFull
 
 
 def get_all(
@@ -241,8 +242,12 @@ def set_tv_show_episode_detail_level(query: Select, view: TVShowEpisodeView) -> 
 
     options_list: list[LoaderOption] = []
 
-    if view in TVShowEpisodeView.WITH_TV_SHOW:
+    if view in (TVShowEpisodeView.WITH_TV_SHOW, TVShowEpisodeView.FULL):
         options_list.append(selectinload(TVShowEpisode.tv_show)) # type: ignore[arg-type]
+    if view in (TVShowEpisodeView.WITH_TRANSLATIONS, TVShowEpisodeView.FULL):
+        options_list.append(selectinload(TVShowEpisode.translations)) # type: ignore[arg-type]
+    if view in (TVShowEpisodeView.WITH_VISUALIZATIONS, TVShowEpisodeView.FULL):
+        options_list.append(selectinload(TVShowEpisode.visualizations)) # type: ignore[arg-type]
 
     return query.options(*options_list) if options_list else query
 
@@ -265,5 +270,11 @@ def set_tv_show_episode_response_model(tv_show_episode: TVShowEpisode, view: TVS
             return TVShowEpisodePublic.model_validate(tv_show_episode)
         case TVShowEpisodeView.WITH_TV_SHOW:
             return TVShowEpisodePublicWithTVShow.model_validate(tv_show_episode)
+        case TVShowEpisodeView.WITH_TRANSLATIONS:
+            return TVShowEpisodePublicWithTranslations.model_validate(tv_show_episode)
+        case TVShowEpisodeView.WITH_VISUALIZATIONS:
+            return TVShowEpisodePublicWithVisualizations.model_validate(tv_show_episode)
+        case TVShowEpisodeView.FULL:
+            return TVShowEpisodeFull.model_validate(tv_show_episode)
         case _:
             raise ValueError(f"Invalid view type: {view}")

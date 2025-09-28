@@ -70,19 +70,22 @@ MediaVisualizationResponseItem: TypeAlias = Union[
 TVShowEpisodePublicWithTVShow.model_rebuild()
 TVShowEpisodePublicWithTranslations.model_rebuild()
 TVShowEpisodePublicWithVisualizations.model_rebuild()
+TVShowEpisodeFull.model_rebuild()
 
 TVShowEpisodeResponse: TypeAlias = Union[
     list[TVShowEpisodePublic],
     list[TVShowEpisodePublicWithTVShow],
     list[TVShowEpisodePublicWithTranslations],
-    list[TVShowEpisodePublicWithVisualizations]
+    list[TVShowEpisodePublicWithVisualizations],
+    list[TVShowEpisodeFull]
 ]
 
 TVShowEpisodeResponseItem: TypeAlias = Union[
     TVShowEpisodePublic,
     TVShowEpisodePublicWithTVShow,
     TVShowEpisodePublicWithTranslations,
-    TVShowEpisodePublicWithVisualizations
+    TVShowEpisodePublicWithVisualizations,
+    TVShowEpisodeFull
 ]
 
 TVShowEpisodeTranslationPublic.model_rebuild()

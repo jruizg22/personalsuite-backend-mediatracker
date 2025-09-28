@@ -370,7 +370,7 @@ class TVShowEpisodeTranslationPublicWithEpisode(TVShowEpisodeTranslationPublic):
 
 class TVShowEpisodePublicWithTVShow(TVShowEpisodePublic):
     """Combines TVShowEpisodePublic with its associated TV show (media)."""
-    tv_show: Media
+    tv_show: MediaPublic
 
 class TVShowEpisodePublicWithTranslations(TVShowEpisodePublic):
     """Combines TVShowEpisodePublic with its associated translations."""
@@ -381,7 +381,8 @@ class TVShowEpisodePublicWithVisualizations(TVShowEpisodePublic):
     visualizations: list[TVShowEpisodeVisualizationPublic] = []
 
 class TVShowEpisodeFull(TVShowEpisodePublic):
-    """Comprehensive model combining TVShowEpisodePublic with translations and visualizations."""
+    """Comprehensive model combining TVShowEpisodePublic with TV show, translations and visualizations."""
+    tv_show: MediaPublic
     translations: list[TVShowEpisodeTranslationPublic] = []
     visualizations: list[TVShowEpisodeVisualizationPublic] = []
 
