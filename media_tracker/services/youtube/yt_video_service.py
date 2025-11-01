@@ -61,6 +61,53 @@ def get_all(
     except Exception as e:
         raise RuntimeError(f"Unexpected error: {e}") from e
 
+def get_all_by_channel_id(
+        channel_id: str,
+        session: Session,
+        offset: int,
+        limit: int
+) -> list[YTVideoPublic]:
+    """
+    Retrieve a list of YouTube video entries for a specific channel.
+
+    Args:
+        channel_id (str): The unique identifier of the YouTube channel.
+        session (Session): SQLAlchemy session for database operations.
+        offset (int): Number of items to skip for pagination.
+        limit (int): Maximum number of items to return. If 0, no limit is applied.
+
+    Returns:
+        list[YTVideoPublic]: A list of YouTube video entries from the specified channel,
+                             each serialized as a public-facing model.
+
+    Raises:
+        RuntimeError: If a database or unexpected error occurs.
+        ValueError: If a data validation error occurs.
+    """
+    try:
+        # Base query with filter
+        query = select(YTVideo).where(YTVideo.channel_id == channel_id)
+
+        # Apply pagination
+        query = query.offset(offset).limit(limit if limit > 0 else None)
+
+        # Execute query
+        yt_video_list: list[YTVideo] = session.exec(query).all()  # type: ignore[arg-type]
+
+        # Map results to public model
+        response_model: list[YTVideoPublic] = [
+            YTVideoPublic.model_validate(video) for video in yt_video_list
+        ]
+
+        return response_model
+
+    except (OperationalError, StatementError, SQLAlchemyError, TimeoutError, DBAPIError) as e:
+        raise RuntimeError(f"Database error: {e}") from e
+    except (ValidationError, TypeError) as e:
+        raise ValueError(f"Data validation error: {e}") from e
+    except Exception as e:
+        raise RuntimeError(f"Unexpected error: {e}") from e
+
 def get_by_id(session: Session, yt_video_id: str, view: YTVideoView = YTVideoView.BASIC) -> YTVideoResponseItem:
     """
     Retrieve a single YouTube video entry by its ID with optional detail level.

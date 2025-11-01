@@ -45,6 +45,33 @@ def get_router(get_session: Callable[[], Generator[Session, Any, None]]) -> APIR
         except Exception as e:
             raise HTTPException(status_code=500, detail=(f"Error fetching YouTube videos: {e}"))
 
+    @router.get("/channel/{channel_id}", response_model=list[YTVideoPublic], status_code=200)
+    def get_all_yt_videos_by_channel_id(
+            channel_id: str,
+            session: Session = Depends(get_session),
+            offset: int = Query(0, ge=0),
+            limit: int = Query(100, ge=1)
+    ) -> list[YTVideoPublic]:
+        """
+        Retrieve a list of YouTube videos belonging to a specific channel.
+
+        Args:
+            channel_id (str): The unique identifier of the YouTube channel.
+            session (Session): Database session dependency.
+            offset (int): Number of items to skip for pagination (default 0).
+            limit (int): Maximum number of items to return (default 100).
+
+        Returns:
+            list[YTVideoPublic]: A list of YouTube video objects from the specified channel.
+
+        Raises:
+            HTTPException: 500 if an unexpected error occurs during retrieval.
+        """
+        try:
+            return yt_video_service.get_all_by_channel_id(channel_id, session, offset, limit)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=(f"Error fetching YouTube videos by channel id: {e}"))
+
     @router.get("/{yt_video_id}", response_model=YTVideoResponseItem, status_code=200)
     def get_yt_video_by_id(
             yt_video_id: str,
