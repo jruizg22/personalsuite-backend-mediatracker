@@ -5,6 +5,7 @@ from core.exceptions import ResourceNotFoundError  # type: ignore
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlmodel import Session
 
+from media_tracker.custom_types import OrderByType
 from media_tracker.models.yt import YTChannelPublic, YTChannelCreate, YTChannelUpdate
 from media_tracker.responses.youtube_responses import YTChannelResponse, YTChannelResponseItem
 from media_tracker.services.youtube import yt_channel_service
@@ -22,6 +23,7 @@ def get_router(get_session: Callable[[], Generator[Session, Any, None]]) -> APIR
             session: Session = Depends(get_session),
             offset: int = Query(0, ge=0),
             limit: int = Query(100, ge=1),
+            order_by: OrderByType = OrderByType.ASC,
             view: YTChannelView = YTChannelView.BASIC
     ) -> YTChannelResponse:
         """
@@ -31,6 +33,7 @@ def get_router(get_session: Callable[[], Generator[Session, Any, None]]) -> APIR
             session (Session): Database session dependency.
             offset (int): Number of items to skip for pagination (default 0).
             limit (int): Maximum number of items to return (default 100).
+            order_by (OrderByType): Sorting order for the results (ascending or descending).
             view (YTChannelView): Determines which related data to include in the response
                               (basic, with videos, playlists, full, etc.).
 
@@ -41,7 +44,7 @@ def get_router(get_session: Callable[[], Generator[Session, Any, None]]) -> APIR
             HTTPException: 500 if an unexpected error occurs during retrieval.
         """
         try:
-            return yt_channel_service.get_all(session, offset, limit, view)
+            return yt_channel_service.get_all(session, offset, limit, order_by, view)
         except Exception as e:
             raise HTTPException(status_code=500, detail=(f"Error fetching YouTube channels: {e}"))
 

@@ -3,12 +3,13 @@ from typing import Any
 # The import will work when the module is installed into the core
 from core.exceptions import ResourceNotFoundError  # type: ignore
 from pydantic import ValidationError
-from sqlalchemy import Select
+from sqlalchemy import Select, asc, desc
 from sqlalchemy.exc import OperationalError, StatementError, SQLAlchemyError, TimeoutError, DBAPIError
 from sqlalchemy.orm import selectinload
 from sqlalchemy.orm.interfaces import LoaderOption
 from sqlmodel import Session, select
 
+from media_tracker.custom_types import OrderByType
 from media_tracker.models.yt import YTChannel, YTChannelPublic, YTChannelPublicWithVideos, YTChannelPublicWithPlaylists, \
     YTChannelFull, YTChannelCreate, YTChannelUpdate
 from media_tracker.responses.youtube_responses import YTChannelResponse, YTChannelResponseItem
@@ -19,6 +20,7 @@ def get_all(
         session: Session,
         offset: int = 0,
         limit: int = 0,
+        order_by: OrderByType = OrderByType.ASC,
         view: YTChannelView = YTChannelView.BASIC
 ) -> YTChannelResponse:
     """
@@ -28,6 +30,7 @@ def get_all(
         session (Session): SQLAlchemy session for database operations.
         offset (int): Number of items to skip for pagination.
         limit (int): Maximum number of items to return. If 0, no limit is applied.
+        order_by (OrderByType): Sorting order for the results (ascending or descending).
         view (YTChannelView): Determines the level of detail for each YouTube channel entry.
 
     Returns:
@@ -41,6 +44,12 @@ def get_all(
     try:
         # Initialize the base query
         query: Select = select(YTChannel)
+
+        # Apply sorting by name (case-insensitive recommended for consistency)
+        if order_by == OrderByType.ASC:
+            query = query.order_by(asc(YTChannel.name))
+        else:
+            query = query.order_by(desc(YTChannel.name))
 
         # Set the level of detail requested
         query: Select = set_yt_channel_detail_level(query, view)

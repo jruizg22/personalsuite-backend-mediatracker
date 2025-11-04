@@ -3,12 +3,13 @@ from typing import Any
 # The import will work when the module is installed into the core
 from core.exceptions import ResourceNotFoundError  # type: ignore
 from pydantic import ValidationError
-from sqlalchemy import Select
+from sqlalchemy import Select, asc, desc
 from sqlalchemy.exc import OperationalError, StatementError, SQLAlchemyError, TimeoutError, DBAPIError
 from sqlalchemy.orm import selectinload
 from sqlalchemy.orm.interfaces import LoaderOption
 from sqlmodel import Session, select
 
+from media_tracker.custom_types import OrderByType
 from media_tracker.models.yt import YTVideo, YTVideoPublic, YTVideoPublicWithVisualizations, YTVideoPublicWithPlaylists, \
     YTVideoPublicWithChannel, YTVideoFull, YTVideoCreate, YTVideoUpdate, YTPlaylistVideo, YTPlaylistPublic, \
     YTVideoVisualizationPublic, YTChannelPublic, YTVideoPlaylistDetailed, YTPlaylistVideoDetailed
@@ -19,7 +20,8 @@ from media_tracker.views.youtube_views import YTVideoView
 def get_all(
         session: Session,
         offset: int = 0,
-        limit: int = 0,
+        limit: int = 100,
+        order_by: OrderByType = OrderByType.ASC,
         view: YTVideoView = YTVideoView.BASIC
 ) -> YTVideoResponse:
     """
@@ -29,6 +31,7 @@ def get_all(
         session (Session): SQLAlchemy session for database operations.
         offset (int): Number of items to skip for pagination.
         limit (int): Maximum number of items to return. If 0, no limit is applied.
+        order_by (OrderByType): Sorting order for the results (ascending or descending).
         view (YTVideoView): Determines the level of detail for each YouTube video entry.
 
     Returns:
@@ -41,7 +44,13 @@ def get_all(
 
     try:
         # Initialize the base query
-        query: Select = select(YTVideo)
+        query: Select = select(YTVideo).order_by(YTVideo.title)
+
+        # Apply sorting by title (case-insensitive recommended for consistency)
+        if order_by == OrderByType.ASC:
+            query = query.order_by(asc(YTVideo.title))
+        else:
+            query = query.order_by(desc(YTVideo.title))
 
         # Set the level of detail requested
         query: Select = set_yt_video_detail_level(query, view)
@@ -64,8 +73,9 @@ def get_all(
 def get_all_by_channel_id(
         channel_id: str,
         session: Session,
-        offset: int,
-        limit: int
+        offset: int = 0,
+        limit: int = 100,
+        order_by: OrderByType = OrderByType.ASC
 ) -> list[YTVideoPublic]:
     """
     Retrieve a list of YouTube video entries for a specific channel.
@@ -75,6 +85,7 @@ def get_all_by_channel_id(
         session (Session): SQLAlchemy session for database operations.
         offset (int): Number of items to skip for pagination.
         limit (int): Maximum number of items to return. If 0, no limit is applied.
+        order_by (OrderByType): Sorting order for the results (ascending or descending).
 
     Returns:
         list[YTVideoPublic]: A list of YouTube video entries from the specified channel,
@@ -87,6 +98,12 @@ def get_all_by_channel_id(
     try:
         # Base query with filter
         query = select(YTVideo).where(YTVideo.channel_id == channel_id)
+
+        # Apply sorting by title (case-insensitive recommended for consistency)
+        if order_by == OrderByType.ASC:
+            query = query.order_by(asc(YTVideo.title))
+        else:
+            query = query.order_by(desc(YTVideo.title))
 
         # Apply pagination
         query = query.offset(offset).limit(limit if limit > 0 else None)

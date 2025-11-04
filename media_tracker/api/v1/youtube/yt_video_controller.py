@@ -5,6 +5,7 @@ from core.exceptions import ResourceNotFoundError  # type: ignore
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlmodel import Session
 
+from media_tracker.custom_types import OrderByType
 from media_tracker.models.yt import YTVideoPublic, YTVideoCreate, YTVideoUpdate
 from media_tracker.responses.youtube_responses import YTVideoResponse, YTVideoResponseItem
 from media_tracker.services.youtube import yt_video_service
@@ -22,6 +23,7 @@ def get_router(get_session: Callable[[], Generator[Session, Any, None]]) -> APIR
             session: Session = Depends(get_session),
             offset: int = Query(0, ge=0),
             limit: int = Query(100, ge=1),
+            order_by: OrderByType = OrderByType.ASC,
             view: YTVideoView = YTVideoView.BASIC
     ) -> YTVideoResponse:
         """
@@ -31,6 +33,7 @@ def get_router(get_session: Callable[[], Generator[Session, Any, None]]) -> APIR
             session (Session): Database session dependency.
             offset (int): Number of items to skip for pagination (default 0).
             limit (int): Maximum number of items to return (default 100).
+            order_by (OrderByType): Sorting order for the results (ascending or descending).
             view (YTVideoView): Determines which related data to include in the response
                               (basic, with visualizations, playlists, channels, etc.).
 
@@ -41,7 +44,7 @@ def get_router(get_session: Callable[[], Generator[Session, Any, None]]) -> APIR
             HTTPException: 500 if an unexpected error occurs during retrieval.
         """
         try:
-            return yt_video_service.get_all(session, offset, limit, view)
+            return yt_video_service.get_all(session, offset, limit, order_by, view)
         except Exception as e:
             raise HTTPException(status_code=500, detail=(f"Error fetching YouTube videos: {e}"))
 
@@ -50,7 +53,8 @@ def get_router(get_session: Callable[[], Generator[Session, Any, None]]) -> APIR
             channel_id: str,
             session: Session = Depends(get_session),
             offset: int = Query(0, ge=0),
-            limit: int = Query(100, ge=1)
+            limit: int = Query(100, ge=1),
+            order_by: OrderByType = OrderByType.ASC
     ) -> list[YTVideoPublic]:
         """
         Retrieve a list of YouTube videos belonging to a specific channel.
@@ -60,6 +64,7 @@ def get_router(get_session: Callable[[], Generator[Session, Any, None]]) -> APIR
             session (Session): Database session dependency.
             offset (int): Number of items to skip for pagination (default 0).
             limit (int): Maximum number of items to return (default 100).
+            order_by (OrderByType): Sorting order for the results (ascending or descending).
 
         Returns:
             list[YTVideoPublic]: A list of YouTube video objects from the specified channel.
@@ -68,7 +73,7 @@ def get_router(get_session: Callable[[], Generator[Session, Any, None]]) -> APIR
             HTTPException: 500 if an unexpected error occurs during retrieval.
         """
         try:
-            return yt_video_service.get_all_by_channel_id(channel_id, session, offset, limit)
+            return yt_video_service.get_all_by_channel_id(channel_id, session, offset, limit, order_by)
         except Exception as e:
             raise HTTPException(status_code=500, detail=(f"Error fetching YouTube videos by channel id: {e}"))
 
