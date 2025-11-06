@@ -21,7 +21,7 @@ class YTChannelBase(SQLModel):
     """
     name: str = Field(nullable=False, max_length=TITLE_MAX_LENGTH, index=True)
     url: str = Field(max_length=LINK_MAX_LENGTH, index=True)
-    created_at: date | None = None
+    created_at: date = Field(nullable=True)
     description: str | None = None
 
 class YTChannel(YTChannelBase, table=True):
@@ -79,7 +79,7 @@ class YTVideoBase(SQLModel):
     """
     channel_id: str = Field(foreign_key="yt_channels.id", max_length=CHANNEL_ID_MAX_LENGTH, index=True)
     title: str = Field(nullable=False, max_length=TITLE_MAX_LENGTH, index=True)
-    published_at: date | None = None
+    published_at: date = Field(nullable=True)
     description: str | None = None
     url: str | None = Field(max_length=LINK_MAX_LENGTH)
 
@@ -138,7 +138,7 @@ class YTVideoVisualizationBase(SQLModel):
         resume (int | None): Optional resume point in seconds.
     """
     video_id: str = Field(foreign_key="yt_videos.id", max_length=VIDEO_ID_MAX_LENGTH, index=True)
-    visualization_date: date
+    visualization_date: date = Field(nullable=False)
     resume: int | None = None
 
 class YTVideoVisualization(YTVideoVisualizationBase, table=True):

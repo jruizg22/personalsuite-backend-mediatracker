@@ -56,7 +56,7 @@ class MediaBase(SQLModel):
         )
     )
     original_title: str = Field(nullable=False, max_length=TITLE_MAX_LENGTH, index=True)
-    release_date: date | None = None
+    release_date: date = Field(nullable=True)
 
 class Media(MediaBase, table=True):
     """
@@ -315,7 +315,7 @@ class TVShowEpisodeVisualizationBase(SQLModel):
         resume (int | None): Optional resume point in seconds, None indicates full visualization.
     """
     episode_id: int = Field(foreign_key="tv_show_episodes.id", index=True)
-    visualization_date: date
+    visualization_date: date = Field(nullable=False)
     resume: int | None = None
 
 class TVShowEpisodeVisualization(TVShowEpisodeVisualizationBase, table=True):
