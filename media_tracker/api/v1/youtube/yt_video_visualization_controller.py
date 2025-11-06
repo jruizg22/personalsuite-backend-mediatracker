@@ -5,6 +5,7 @@ from core.exceptions import ResourceNotFoundError  # type: ignore
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlmodel import Session
 
+from media_tracker.custom_types import OrderByType
 from media_tracker.models.yt import YTVideoVisualizationPublic, YTVideoVisualizationCreate, YTVideoVisualizationUpdate
 from media_tracker.responses.youtube_responses import YTVideoVisualizationResponse, YTVideoVisualizationResponseItem
 from media_tracker.services.youtube import yt_video_visualization_service
@@ -22,6 +23,7 @@ def get_router(get_session: Callable[[], Generator[Session, Any, None]]) -> APIR
             session: Session = Depends(get_session),
             offset: int = Query(0, ge=0),
             limit: int = Query(100, ge=1),
+            order_by: OrderByType = OrderByType.ASC,
             view: YTVideoVisualizationView = YTVideoVisualizationView.BASIC
     ) -> YTVideoVisualizationResponse:
         """
@@ -31,6 +33,7 @@ def get_router(get_session: Callable[[], Generator[Session, Any, None]]) -> APIR
             session (Session): Database session dependency.
             offset (int): Number of items to skip for pagination (default 0).
             limit (int): Maximum number of items to return (default 100).
+            order_by (OrderByType): Sorting order for the results (ascending or descending).
             view (YTVideoVisualizationView): Determines which related data to include in the response
                               (basic, with video, etc.).
 
@@ -44,6 +47,35 @@ def get_router(get_session: Callable[[], Generator[Session, Any, None]]) -> APIR
             return yt_video_visualization_service.get_all(session, offset, limit, view)
         except Exception as e:
             raise HTTPException(status_code=500, detail=(f"Error fetching YouTube video visualizations: {e}"))
+
+    @router.get("/video/{video_id}", response_model=list[YTVideoVisualizationPublic], status_code=200)
+    def get_all_yt_video_visualizations_by_video_id(
+            video_id: str,
+            session: Session = Depends(get_session),
+            offset: int = Query(0, ge=0),
+            limit: int = Query(100, ge=1),
+            order_by: OrderByType = OrderByType.ASC
+    ) -> list[YTVideoVisualizationPublic]:
+        """
+        Retrieve a list of YouTube video visualizations belonging to a specific video.
+
+        Args:
+            video_id (str): The unique identifier of the YouTube video.
+            session (Session): Database session dependency.
+            offset (int): Number of items to skip for pagination (default 0).
+            limit (int): Maximum number of items to return (default 100).
+            order_by (OrderByType): Sorting order for the results (ascending or descending).
+
+        Returns:
+            list[YTVideoVisualizationPublic]: A list of YouTube video objects from the specified channel.
+
+        Raises:
+            HTTPException: 500 if an unexpected error occurs during retrieval.
+        """
+        try:
+            return yt_video_visualization_service.get_all_by_video_id(video_id, session, offset, limit, order_by)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=(f"Error fetching YouTube video visualizations by video: {e}"))
 
     @router.get("/{yt_video_visualization_id}", response_model=YTVideoVisualizationResponseItem, status_code=200)
     def get_yt_video_visualization_by_id(

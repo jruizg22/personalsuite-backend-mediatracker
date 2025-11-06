@@ -44,7 +44,7 @@ def get_all(
 
     try:
         # Initialize the base query
-        query: Select = select(YTVideo).order_by(YTVideo.title)
+        query: Select = select(YTVideo)
 
         # Apply sorting by title (case-insensitive recommended for consistency)
         if order_by == OrderByType.ASC:
