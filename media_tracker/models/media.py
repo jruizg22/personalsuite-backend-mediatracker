@@ -106,7 +106,11 @@ class MediaTranslationBase(SQLModel):
         language_code (str): Language code of the translation.
         title (str): Translated title of the media.
     """
-    media_id: int = Field(foreign_key="media.id", primary_key=True)
+    media_id: int = Field(
+        foreign_key="media.id",
+        primary_key=True,
+        sa_column_kwargs={"ondelete": "CASCADE"}
+    )
     language_code: str = Field(primary_key=True, max_length=LANGUAGE_CODE_MAX_LENGTH)
     title: str
 
@@ -146,7 +150,11 @@ class MediaVisualizationBase(SQLModel):
         visualization_date (date): Date when media was visualized.
         resume (int | None): Optional resume point in seconds, None indicates full visualization.
     """
-    media_id: int = Field(foreign_key="media.id", index=True)
+    media_id: int = Field(
+        foreign_key="media.id",
+        index=True,
+        sa_column_kwargs={"ondelete": "CASCADE"}
+    )
     visualization_date: date
     resume: int | None = None
 
@@ -221,7 +229,11 @@ class TVShowEpisodeBase(SQLModel):
         episode_num (int | None): Episode number within the season.
         original_title (str): Original title of the episode.
     """
-    tv_show_id: int = Field(foreign_key="media.id", index=True)
+    tv_show_id: int = Field(
+        foreign_key="media.id",
+        index=True,
+        sa_column_kwargs={"ondelete": "CASCADE"}
+    )
     season_num: int | None = None
     episode_num: int | None = None
     original_title: str = Field(nullable=False, max_length=TITLE_MAX_LENGTH, index=True)
@@ -274,7 +286,12 @@ class TVShowEpisodeTranslationBase(SQLModel):
         language_code (str): Language code of the translation.
         title (str): Translated title of the episode.
     """
-    episode_id: int = Field(foreign_key="tv_show_episodes.id", primary_key=True, index=True)
+    episode_id: int = Field(
+        foreign_key="tv_show_episodes.id",
+        primary_key=True,
+        index=True,
+        sa_column_kwargs={"ondelete": "CASCADE"}
+    )
     language_code: str = Field(primary_key=True, max_length=LANGUAGE_CODE_MAX_LENGTH)
     title: str = Field(nullable=False, max_length=TITLE_MAX_LENGTH, index=True)
 
@@ -314,7 +331,11 @@ class TVShowEpisodeVisualizationBase(SQLModel):
         visualization_date (date): Date when the episode was visualized.
         resume (int | None): Optional resume point in seconds, None indicates full visualization.
     """
-    episode_id: int = Field(foreign_key="tv_show_episodes.id", index=True)
+    episode_id: int = Field(
+        foreign_key="tv_show_episodes.id",
+        index=True,
+        sa_column_kwargs={"ondelete": "CASCADE"}
+    )
     visualization_date: date = Field(nullable=False)
     resume: int | None = None
 
