@@ -77,7 +77,12 @@ class YTVideoBase(SQLModel):
         description (str | None): Optional description.
         url (str | None): Optional URL.
     """
-    channel_id: str = Field(foreign_key="yt_channels.id", max_length=CHANNEL_ID_MAX_LENGTH, index=True)
+    channel_id: str = Field(
+        foreign_key="yt_channels.id",
+        max_length=CHANNEL_ID_MAX_LENGTH,
+        index=True,
+        sa_column_kwargs={"ondelete": "CASCADE"}
+    )
     title: str = Field(nullable=False, max_length=TITLE_MAX_LENGTH, index=True)
     published_at: date = Field(nullable=True)
     description: str | None = None
@@ -137,7 +142,12 @@ class YTVideoVisualizationBase(SQLModel):
         visualization_date (date): Date when the video was viewed.
         resume (int | None): Optional resume point in seconds.
     """
-    video_id: str = Field(foreign_key="yt_videos.id", max_length=VIDEO_ID_MAX_LENGTH, index=True)
+    video_id: str = Field(
+        foreign_key="yt_videos.id",
+        max_length=VIDEO_ID_MAX_LENGTH,
+        index=True,
+        sa_column_kwargs={"ondelete": "CASCADE"}
+    )
     visualization_date: date = Field(nullable=False)
     resume: int | None = None
 
@@ -241,8 +251,18 @@ class YTPlaylistVideoBase(SQLModel):
         video_id (str): Foreign key to YTVideo.id.
         position (int | None): Optional position in the playlist.
     """
-    playlist_id: str = Field(foreign_key="yt_playlists.id", max_length=PLAYLIST_ID_MAX_LENGTH, index=True)
-    video_id: str = Field(foreign_key="yt_videos.id", max_length=VIDEO_ID_MAX_LENGTH, index=True)
+    playlist_id: str = Field(
+        foreign_key="yt_playlists.id",
+        max_length=PLAYLIST_ID_MAX_LENGTH,
+        index=True,
+        sa_column_kwargs={"ondelete": "CASCADE"}
+    )
+    video_id: str = Field(
+        foreign_key="yt_videos.id",
+        max_length=VIDEO_ID_MAX_LENGTH,
+        index=True,
+        sa_column_kwargs={"ondelete": "CASCADE"}
+    )
     position: int | None = None
 
 class YTPlaylistVideo(YTPlaylistVideoBase, table=True):
