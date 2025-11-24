@@ -15,14 +15,14 @@ class YTChannelBase(SQLModel):
 
     Attributes:
         name (str): Name of the channel.
-        url (str): Optional URL of the channel.
+        url (str | None): Optional URL of the channel.
         created_at (date | None): Optional creation date of the channel.
         description (str | None): Optional description of the channel.
     """
     name: str = Field(nullable=False, max_length=TITLE_MAX_LENGTH, index=True)
-    url: str = Field(max_length=LINK_MAX_LENGTH, index=True)
+    url: str | None = Field(max_length=LINK_MAX_LENGTH, index=True, nullable=True)
     created_at: date = Field(nullable=True)
-    description: str | None = None
+    description: str | None = Field(nullable=True)
 
 class YTChannel(YTChannelBase, table=True):
     """
