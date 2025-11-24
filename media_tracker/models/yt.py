@@ -71,22 +71,23 @@ class YTVideoBase(SQLModel):
     Base model for a YouTube video.
 
     Attributes:
-        channel_id (str): Foreign key to YTChannel.id.
+        channel_id (str | None): Foreign key to YTChannel.id. Will be set to null when channel is deleted
         title (str): Video title.
         published_at (date | None): Optional publication date.
         description (str | None): Optional description.
         url (str | None): Optional URL.
     """
-    channel_id: str = Field(
+    channel_id: str | None = Field(
         foreign_key="yt_channels.id",
         max_length=CHANNEL_ID_MAX_LENGTH,
         index=True,
+        nullable=True,
         sa_column_kwargs={"ondelete": "SET NULL"}
     )
     title: str = Field(nullable=False, max_length=TITLE_MAX_LENGTH, index=True)
     published_at: date = Field(nullable=True)
-    description: str | None = None
-    url: str | None = Field(max_length=LINK_MAX_LENGTH)
+    description: str | None = Field(nullable=True)
+    url: str | None = Field(max_length=LINK_MAX_LENGTH, nullable=True)
 
 class YTVideo(YTVideoBase, table=True):
     """
@@ -113,6 +114,7 @@ class YTVideoCreate(YTVideoBase):
         id (str): YouTube video ID.
     """
     id: str
+    channel_id: str
 
 class YTVideoPublic(YTVideoBase):
     """
