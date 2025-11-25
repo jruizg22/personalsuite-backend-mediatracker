@@ -109,10 +109,10 @@ class MediaTranslationBase(SQLModel):
     media_id: int = Field(
         foreign_key="media.id",
         primary_key=True,
-        sa_column_kwargs={"ondelete": "CASCADE"}
+        ondelete="CASCADE"
     )
     language_code: str = Field(primary_key=True, max_length=LANGUAGE_CODE_MAX_LENGTH)
-    title: str
+    title: str = Field(nullable=False)
 
 class MediaTranslation(MediaTranslationBase, table=True):
     """
@@ -153,7 +153,7 @@ class MediaVisualizationBase(SQLModel):
     media_id: int = Field(
         foreign_key="media.id",
         index=True,
-        sa_column_kwargs={"ondelete": "CASCADE"}
+        ondelete="CASCADE"
     )
     visualization_date: date
     resume: int | None = None
@@ -232,7 +232,7 @@ class TVShowEpisodeBase(SQLModel):
     tv_show_id: int = Field(
         foreign_key="media.id",
         index=True,
-        sa_column_kwargs={"ondelete": "CASCADE"}
+        ondelete="CASCADE"
     )
     season_num: int | None = None
     episode_num: int | None = None
@@ -290,7 +290,7 @@ class TVShowEpisodeTranslationBase(SQLModel):
         foreign_key="tv_show_episodes.id",
         primary_key=True,
         index=True,
-        sa_column_kwargs={"ondelete": "CASCADE"}
+        ondelete="CASCADE"
     )
     language_code: str = Field(primary_key=True, max_length=LANGUAGE_CODE_MAX_LENGTH)
     title: str = Field(nullable=False, max_length=TITLE_MAX_LENGTH, index=True)
@@ -334,7 +334,7 @@ class TVShowEpisodeVisualizationBase(SQLModel):
     episode_id: int = Field(
         foreign_key="tv_show_episodes.id",
         index=True,
-        sa_column_kwargs={"ondelete": "CASCADE"}
+        ondelete="CASCADE"
     )
     visualization_date: date = Field(nullable=False)
     resume: int | None = None

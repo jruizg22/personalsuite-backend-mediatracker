@@ -82,7 +82,7 @@ class YTVideoBase(SQLModel):
         max_length=CHANNEL_ID_MAX_LENGTH,
         index=True,
         nullable=True,
-        sa_column_kwargs={"ondelete": "SET NULL"}
+        ondelete="SET NULL"
     )
     title: str = Field(nullable=False, max_length=TITLE_MAX_LENGTH, index=True)
     published_at: date = Field(nullable=True)
@@ -148,10 +148,10 @@ class YTVideoVisualizationBase(SQLModel):
         foreign_key="yt_videos.id",
         max_length=VIDEO_ID_MAX_LENGTH,
         index=True,
-        sa_column_kwargs={"ondelete": "CASCADE"}
+        ondelete="CASCADE"
     )
     visualization_date: date = Field(nullable=False)
-    resume: int | None = None
+    resume: int | None = Field(nullable=True)
 
 class YTVideoVisualization(YTVideoVisualizationBase, table=True):
     """
@@ -201,10 +201,10 @@ class YTPlaylistBase(SQLModel):
         foreign_key="yt_channels.id",
         max_length=CHANNEL_ID_MAX_LENGTH,
         index=True,
-        sa_column_kwargs={"ondelete": "SET NULL"}
+        ondelete="CASCADE"
     )
     title: str = Field(nullable=False, max_length=TITLE_MAX_LENGTH, index=True)
-    description: str | None
+    description: str | None = Field(nullable=True)
     url: str = Field(max_length=LINK_MAX_LENGTH)
 
 class YTPlaylist(YTPlaylistBase, table=True):
@@ -262,13 +262,13 @@ class YTPlaylistVideoBase(SQLModel):
         foreign_key="yt_playlists.id",
         max_length=PLAYLIST_ID_MAX_LENGTH,
         index=True,
-        sa_column_kwargs={"ondelete": "CASCADE"}
+        ondelete="CASCADE"
     )
     video_id: str = Field(
         foreign_key="yt_videos.id",
         max_length=VIDEO_ID_MAX_LENGTH,
         index=True,
-        sa_column_kwargs={"ondelete": "CASCADE"}
+        ondelete="CASCADE"
     )
     position: int | None = None
 
