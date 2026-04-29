@@ -3,6 +3,7 @@ from typing import Callable, Generator, Any
 from fastapi import APIRouter
 from sqlmodel import Session
 
+from . import yt_resolve_controller
 from .yt_channel_controller import get_router as yt_channel_router
 from .yt_video_controller import get_router as yt_video_router
 from .yt_video_visualization_controller import get_router as yt_video_visualization_router
@@ -19,5 +20,6 @@ def get_router(get_session: Callable[[], Generator[Session, Any, None]]) -> APIR
     router.include_router(yt_video_visualization_router(get_session))
     router.include_router(yt_playlist_router(get_session))
     router.include_router(yt_playlist_video_router(get_session))
+    router.include_router(yt_resolve_controller.router)
 
     return router
