@@ -66,7 +66,7 @@ class YTResolverService:
             fallback_url: str | None = None
     ) -> YTResolvedChannel:
 
-        result = self.youtube_api.get_channel(
+        result: YouTubeChannelMetadataResult = self.youtube_api.get_channel(
             channel_id
         )
 
