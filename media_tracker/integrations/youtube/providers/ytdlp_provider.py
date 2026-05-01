@@ -1,8 +1,6 @@
-from media_tracker.integrations.youtube.utils.dates import parse_ytdlp_datetime
-from media_tracker.integrations.youtube.utils.url_parser import validate_youtube_url
-from media_tracker.models.yt_resolve import (
-    YTResolvedVideo
-)
+from media_tracker.integrations.youtube.utils.dates import parse_datetime
+from media_tracker.models.yt_api import YouTubeChannelDTO
+from media_tracker.models.yt_resolve import YouTubeVideoDTO
 
 
 class YTDLPProvider:
@@ -10,16 +8,38 @@ class YTDLPProvider:
     def __init__(self, client):
         self.client = client
 
-    def resolve_video(self, url: str) -> YTResolvedVideo:
-        video_id = validate_youtube_url(url)
+    def resolve_channel(
+            self,
+            url: str
+    ) -> YouTubeChannelDTO:
+        data = self.client.run(url)
+
+        return YouTubeChannelDTO(
+            id=data["channel_id"],
+            name=data.get("channel"),
+            url=data.get("channel_url")
+        )
+
+    def resolve_video(
+        self,
+        url: str
+    ) -> YouTubeVideoDTO:
 
         data = self.client.run(url)
 
-        return YTResolvedVideo(
-            id=video_id,
+        return YouTubeVideoDTO(
+            id=data["id"],
             title=data["title"],
+
             description=data.get("description"),
-            url=data.get("webpage_url", url),
-            published_at=parse_ytdlp_datetime(data.get("upload_date")),
-            channel_id=data.get("channel_id")
+
+            published_at=parse_datetime(
+                data.get("upload_date")
+            ),
+
+            url=data.get("webpage_url"),
+
+            channel_id=data["channel_id"],
+            channel_name=data.get("channel"),
+            channel_url=data.get("channel_url")
         )
