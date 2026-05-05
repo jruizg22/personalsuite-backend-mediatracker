@@ -13,7 +13,8 @@ CREATE TABLE yt_channels (
 	name VARCHAR(255) NOT NULL, -- Channel name
     url link, -- Channel URL
     creation_date DATE, -- Channel creation date
-    description TEXT -- Channel description
+    description TEXT, -- Channel description
+    thumbnail_url TEXT -- Url to channel thumbnail
 );
 
 /*

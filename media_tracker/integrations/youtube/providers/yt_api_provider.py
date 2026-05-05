@@ -34,7 +34,18 @@ class YouTubeAPIProvider:
                 created_at=parse_datetime(
                     snippet.get("publishedAt")
                 ),
-                url=f"https://www.youtube.com/channel/{data['id']}"
+                url=f"https://www.youtube.com/channel/{data['id']}",
+                thumbnail_url=(
+                        snippet.get("thumbnails", {})
+                        .get("high", {})
+                        .get("url")
+                        or snippet.get("thumbnails", {})
+                        .get("medium", {})
+                        .get("url")
+                        or snippet.get("thumbnails", {})
+                        .get("default", {})
+                        .get("url")
+                )
             )
 
             return YouTubeChannelMetadataResult(

@@ -23,6 +23,7 @@ class YTChannelBase(SQLModel):
     url: str | None = Field(max_length=LINK_MAX_LENGTH, index=True, nullable=True)
     created_at: date = Field(nullable=True)
     description: str | None = Field(nullable=True)
+    thumbnail_url: str | None = Field(nullable=True)
 
 class YTChannel(YTChannelBase, table=True):
     """
@@ -63,6 +64,7 @@ class YTChannelUpdate(SQLModel):
     url: str | None = None
     created_at: date | None = None
     description: str | None = None
+    thumbnail_url: str | None = None
 
 # --- YouTube Video models ---
 

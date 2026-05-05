@@ -9,6 +9,7 @@ class YouTubeChannelDTO(BaseModel):
     description: str | None = None
     created_at: datetime | None = None
     url: str | None = None
+    thumbnail_url: str | None = None
 
 class YouTubeChannelMetadata(BaseModel):
     id: str
