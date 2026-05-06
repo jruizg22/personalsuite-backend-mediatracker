@@ -16,21 +16,21 @@ class YTResolverService:
 
     def resolve_channel(
             self,
-            url: str
+            url: str | None,
+            channel_id: str | None
     ) -> YTResolvedChannel:
+        if channel_id:
+            return self._resolve_channel_by_id(channel_id)
 
-        if not url:
-            raise ValueError("URL cannot be empty")
+        if url:
+            channel_data: YouTubeChannelDTO = self.provider.resolve_channel(url)
+            return self._resolve_channel_by_id(
+                channel_data.id,
+                fallback_name=channel_data.name,
+                fallback_url=channel_data.url
+            )
 
-        channel_data: YouTubeChannelDTO = self.provider.resolve_channel(
-            url
-        )
-
-        return self._resolve_channel_by_id(
-            channel_id=channel_data.id,
-            fallback_name=channel_data.name,
-            fallback_url=channel_data.url
-        )
+        raise ValueError("Either url or channel_id must be provided")
 
     def resolve_video(
             self,

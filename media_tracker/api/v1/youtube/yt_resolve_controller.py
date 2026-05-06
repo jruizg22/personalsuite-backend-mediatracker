@@ -17,16 +17,18 @@ router = APIRouter(
     status_code=200
 )
 def resolve_channel(
-    url: str = Query(
-        ...,
-        description="YouTube channel URL"
+    url: str | None = Query(
+        None,
+        description="YouTube channel URL (optional)"
     ),
-    service: YTResolverService = Depends(
-        get_yt_resolver_service
-    )
+    channel_id: str | None = Query(
+        None,
+        description="Canonical YouTube channel ID (UC...)"
+    ),
+    service: YTResolverService = Depends(get_yt_resolver_service)
 ) -> YTResolvedChannel:
     try:
-        return service.resolve_channel(url)
+        return service.resolve_channel(url, channel_id)
     except ValueError as e:
         raise HTTPException(
             status_code=400,

@@ -3,6 +3,7 @@ from datetime import date
 from sqlalchemy import UniqueConstraint
 from sqlmodel import SQLModel, Field, Relationship
 
+from .mixins.date_normalization import DateNormalizationMixin
 from ..constants import CHANNEL_ID_MAX_LENGTH, LINK_MAX_LENGTH, TITLE_MAX_LENGTH, \
     VIDEO_ID_MAX_LENGTH, PLAYLIST_ID_MAX_LENGTH
 
@@ -40,7 +41,7 @@ class YTChannel(YTChannelBase, table=True):
     videos: list["YTVideo"] = Relationship(back_populates="channel")
     playlists: list["YTPlaylist"] = Relationship(back_populates="channel")
 
-class YTChannelCreate(YTChannelBase):
+class YTChannelCreate(YTChannelBase, DateNormalizationMixin):
     """
     Model for creating a new YouTube channel.
 
@@ -58,8 +59,9 @@ class YTChannelPublic(YTChannelBase):
     """
     id: str
 
-class YTChannelUpdate(SQLModel):
+class YTChannelUpdate(SQLModel, DateNormalizationMixin):
     """Model for updating a YouTube channel; all fields optional."""
+
     name: str | None = None
     url: str | None = None
     created_at: date | None = None
@@ -108,7 +110,7 @@ class YTVideo(YTVideoBase, table=True):
     visualizations: list["YTVideoVisualization"] = Relationship(back_populates="video")
     playlists: list["YTPlaylistVideo"] = Relationship(back_populates="video")
 
-class YTVideoCreate(YTVideoBase):
+class YTVideoCreate(YTVideoBase, DateNormalizationMixin):
     """
     Model for creating a new YouTube video.
 
@@ -127,7 +129,7 @@ class YTVideoPublic(YTVideoBase):
     """
     id: str
 
-class YTVideoUpdate(SQLModel):
+class YTVideoUpdate(SQLModel, DateNormalizationMixin):
     """Model for updating a YouTube video; all fields optional."""
     channel_id: str | None = None
     title: str | None = None
