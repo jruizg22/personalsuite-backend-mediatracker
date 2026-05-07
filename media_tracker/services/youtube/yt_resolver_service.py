@@ -34,7 +34,8 @@ class YTResolverService:
 
     def resolve_video(
             self,
-            url: str
+            url: str,
+            rich_channel: bool = False
     ) -> YTResolvedVideo:
 
         if not url:
@@ -44,11 +45,19 @@ class YTResolverService:
             self.provider.resolve_video(url)
         )
 
-        channel: YTResolvedChannel = self._resolve_channel_by_id(
-            channel_id=video_data.channel_id,
-            fallback_name=video_data.channel_name,
-            fallback_url=video_data.channel_url
+        channel: YTResolvedChannel = YTResolvedChannel(
+            id=video_data.channel_id,
+            name=video_data.channel_name,
+            url=video_data.channel_url,
+            metadata_error=None
         )
+
+        if rich_channel:
+            channel = self._resolve_channel_by_id(
+                channel_id=video_data.channel_id,
+                fallback_name=video_data.channel_name,
+                fallback_url=video_data.channel_url
+            )
 
         return YTResolvedVideo(
             id=video_data.id,

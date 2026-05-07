@@ -23,7 +23,7 @@ class YTDLPProvider:
         return YouTubeVideoDTO(
             id=data["id"],
             title=data["title"],
-            description=data.get("description"),
+            description=data.get("description", "").strip() or None,
             published_at=parse_datetime(data.get("upload_date")),
             url=data.get("webpage_url"),
             channel_id=data["channel_id"],

@@ -30,7 +30,7 @@ class YouTubeAPIProvider:
             dto = YouTubeChannelDTO(
                 id=data["id"],
                 name=snippet.get("title"),
-                description=snippet.get("description"),
+                description=snippet.get("description", "").strip() or None,
                 created_at=parse_datetime(
                     snippet.get("publishedAt")
                 ),

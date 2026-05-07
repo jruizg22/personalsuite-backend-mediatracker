@@ -11,11 +11,7 @@ router = APIRouter(
     tags=["YouTube Resolve"]
 )
 
-@router.get(
-    "/channel",
-    response_model=YTResolvedChannel,
-    status_code=200
-)
+@router.get("/channel", response_model=YTResolvedChannel, status_code=200)
 def resolve_channel(
     url: str | None = Query(
         None,
@@ -40,22 +36,20 @@ def resolve_channel(
             detail=str(e)
         )
 
-@router.get(
-    "/video",
-    response_model=YTResolvedVideo,
-    status_code=200
-)
+@router.get("/video", response_model=YTResolvedVideo, status_code=200)
 def resolve_video(
     url: str = Query(
         ...,
         description="YouTube video URL"
     ),
-    service: YTResolverService = Depends(
-        get_yt_resolver_service
-    )
+    rich_channel: bool = Query(
+        False,
+        description="Whether to enrich channel metadata"
+    ),
+    service: YTResolverService = Depends(get_yt_resolver_service)
 ) -> YTResolvedVideo:
     try:
-        return service.resolve_video(url)
+        return service.resolve_video(url, rich_channel)
     except ValueError as e:
         raise HTTPException(
             status_code=400,
